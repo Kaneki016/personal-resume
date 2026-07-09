@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lai Yoke Yau — Data Science & AI Engineer</title>
+<style>
+  :root{
+    --bg: #0a0e14;
+    --bg-alt: #0f1420;
+    --card: #131a29;
+    --border: #1f2937;
+    --text: #e6edf3;
+    --text-dim: #8b98a9;
+    --accent: #4dd6c4;
+    --accent-2: #7c9dff;
+    --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+  }
+  ::selection{ background: var(--accent); color: #0a0e14; }
+
+  /* Scroll progress bar */
+  #scrollBar{
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    z-index: 200;
+    transition: width 0.1s ease-out;
+    box-shadow: 0 0 8px rgba(77,214,196,0.6);
+  }
+
+  a{ color: var(--accent); text-decoration: none; }
+  a:hover{ text-decoration: underline; }
+
+  .container{
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Nav */
+  nav{
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,20,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .container{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .logo{
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+  .logo span{ color: var(--accent); }
+  .nav-links{
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+  .nav-links a{
+    color: var(--text-dim);
+    font-size: 14px;
+    font-family: var(--mono);
+    position:relative;
+  }
+  .nav-links a:hover{ color: var(--accent); text-decoration: none; }
+  .nav-links a::after{
+    content:"";
+    position:absolute;
+    left:0; bottom:-4px;
+    width:0%; height:1px;
+    background: var(--accent);
+    transition: width 0.25s ease;
+  }
+  .nav-links a:hover::after{ width:100%; }
+  .nav-toggle{ display:none; background:none; border:none; color:var(--text); font-size:22px; cursor:pointer; }
+
+  @media (max-width: 640px){
+    .nav-links{
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: var(--bg-alt);
+      flex-direction: column;
+      padding: 20px 24px;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      transform: translateY(-150%);
+      transition: transform 0.25s ease;
+    }
+    .nav-links.open{ transform: translateY(0); }
+    .nav-toggle{ display:block; }
+  }
+
+  /* Hero */
+  .hero{
+    min-height: 86vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(77,214,196,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,214,196,0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 85%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 85%);
+    animation: gridPan 30s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes gridPan{
+    0%{ background-position: 0 0, 0 0; }
+    100%{ background-position: 48px 48px, 48px 48px; }
+  }
+  .orb{
+    position:absolute;
+    border-radius:50%;
+    filter: blur(70px);
+    pointer-events:none;
+    opacity:0.55;
+    will-change: transform;
+  }
+  .orb1{
+    width:380px; height:380px;
+    top:-80px; left:-60px;
+    background: radial-gradient(circle, rgba(77,214,196,0.55), transparent 70%);
+    animation: floatOrb1 14s ease-in-out infinite;
+  }
+  .orb2{
+    width:420px; height:420px;
+    bottom:-140px; right:-100px;
+    background: radial-gradient(circle, rgba(124,157,255,0.5), transparent 70%);
+    animation: floatOrb2 18s ease-in-out infinite;
+  }
+  .orb3{
+    width:220px; height:220px;
+    top:40%; left:60%;
+    background: radial-gradient(circle, rgba(77,214,196,0.35), transparent 70%);
+    animation: floatOrb3 11s ease-in-out infinite;
+  }
+  @keyframes floatOrb1{
+    0%,100%{ transform: translate(0,0) scale(1); }
+    50%{ transform: translate(40px,50px) scale(1.1); }
+  }
+  @keyframes floatOrb2{
+    0%,100%{ transform: translate(0,0) scale(1); }
+    50%{ transform: translate(-50px,-30px) scale(1.08); }
+  }
+  @keyframes floatOrb3{
+    0%,100%{ transform: translate(0,0); }
+    50%{ transform: translate(-30px,25px); }
+  }
+  .particles{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .particle{
+    position:absolute;
+    width:3px; height:3px;
+    border-radius:50%;
+    background: var(--accent);
+    opacity:0.5;
+    animation: drift linear infinite;
+  }
+  @keyframes drift{
+    0%{ transform: translateY(0) translateX(0); opacity:0; }
+    10%{ opacity:0.6; }
+    90%{ opacity:0.6; }
+    100%{ transform: translateY(-100vh) translateX(20px); opacity:0; }
+  }
+
+  .eyebrow{
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 14px;
+    margin-bottom: 18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    opacity:0;
+    animation: heroIn 0.7s ease forwards;
+    animation-delay: 0.1s;
+  }
+  .eyebrow::before{
+    content:"";
+    width:8px; height:8px;
+    border-radius:50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulseDot 1.6s ease-in-out infinite;
+  }
+  @keyframes pulseDot{
+    0%,100%{ box-shadow: 0 0 6px var(--accent); }
+    50%{ box-shadow: 0 0 16px var(--accent); }
+  }
+  .hero h1{
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 14px;
+    opacity:0;
+    animation: heroIn 0.7s ease forwards;
+    animation-delay: 0.25s;
+  }
+  .hero h1 .grad{
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 5s linear infinite;
+  }
+  @keyframes shimmer{
+    0%{ background-position: 0% center; }
+    100%{ background-position: 200% center; }
+  }
+  #typed-role{ border-right: 2px solid var(--accent); animation: blinkCursor 0.8s step-end infinite; }
+  @keyframes blinkCursor{ 50%{ border-color: transparent; } }
+  .hero p{
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    max-width: 620px;
+    margin-bottom: 30px;
+    opacity:0;
+    animation: heroIn 0.7s ease forwards;
+    animation-delay: 0.4s;
+  }
+  .hero-actions{
+    display:flex; gap:14px; flex-wrap:wrap;
+    opacity:0;
+    animation: heroIn 0.7s ease forwards;
+    animation-delay: 0.55s;
+  }
+  @keyframes heroIn{
+    from{ opacity:0; transform: translateY(18px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .btn{
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 12px 22px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .btn:hover{ transform: translateY(-2px); }
+  .btn-primary{
+    background: var(--accent);
+    color: #0a0e14;
+    font-weight: 700;
+    border-color: var(--accent);
+    animation: glowPulse 2.6s ease-in-out infinite;
+  }
+  @keyframes glowPulse{
+    0%,100%{ box-shadow: 0 0 0 rgba(77,214,196,0); }
+    50%{ box-shadow: 0 0 20px rgba(77,214,196,0.45); }
+  }
+  .btn-primary:hover{ text-decoration:none; box-shadow: 0 0 28px rgba(77,214,196,0.55); }
+  .btn-ghost{ color: var(--text); }
+  .btn-ghost:hover{ text-decoration:none; border-color: var(--accent); color: var(--accent); }
+
+  /* Section shared */
+  section{ padding: 90px 0; border-top: 1px solid var(--border); }
+  .section-tag{
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .section-title{
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    font-weight: 700;
+    margin-bottom: 36px;
+  }
+  .section-title span{ color: var(--text-dim); }
+
+  /* About */
+  .about-text{ color: var(--text-dim); font-size: 1.05rem; max-width: 720px; }
+  .about-grid{
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width:640px){ .about-grid{ grid-template-columns: 1fr; } }
+  .stat{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .stat:hover{ border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+  .stat .num{ font-family: var(--mono); color: var(--accent); font-size: 1.6rem; font-weight:700; }
+  .stat .label{ color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+
+  /* Skills */
+  .skills-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media (max-width:640px){ .skills-grid{ grid-template-columns: 1fr; } }
+  .skill-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .skill-card:hover{ border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+  .skill-card h3{
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+
+  /* Experience timeline */
+  .timeline{ position: relative; padding-left: 28px; }
+  .timeline::before{
+    content:"";
+    position:absolute;
+    left:6px; top:6px; bottom:6px;
+    width:2px;
+    background: linear-gradient(var(--accent), var(--border));
+  }
+  .tl-item{ position: relative; margin-bottom: 42px; }
+  .tl-item:last-child{ margin-bottom: 0; }
+  .tl-item::before{
+    content:"";
+    position:absolute;
+    left:-28px; top:4px;
+    width:14px; height:14px;
+    border-radius:50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+    transition: box-shadow 0.3s ease;
+  }
+  .tl-item:hover::before{ box-shadow: 0 0 12px var(--accent); }
+  .tl-header{
+    display:flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-bottom: 4px;
+  }
+  .tl-role{ font-size: 1.05rem; font-weight: 700; }
+  .tl-role .company{ color: var(--accent-2); font-weight: 500; }
+  .tl-date{ font-family: var(--mono); color: var(--text-dim); font-size: 13px; white-space: nowrap; }
+  .tl-loc{ color: var(--text-dim); font-size: 13px; font-style: italic; margin-bottom: 10px; }
+  .tl-item ul{ padding-left: 18px; color: var(--text-dim); }
+  .tl-item li{ margin-bottom: 6px; }
+  .tl-item li::marker{ color: var(--accent); }
+
+  /* Project */
+  .project-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .project-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+  .project-card h3{ font-size: 1.3rem; margin-bottom: 6px; }
+  .project-card .sub{ color: var(--text-dim); font-family: var(--mono); font-size: 13px; margin-bottom: 18px; }
+  .project-card ul{ padding-left: 18px; color: var(--text-dim); margin-bottom: 20px; }
+  .project-card li{ margin-bottom: 8px; }
+  .project-card li::marker{ color: var(--accent); }
+
+  /* Education / Certs */
+  .two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media (max-width:640px){ .two-col{ grid-template-columns: 1fr; } }
+  .edu-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .edu-card:hover{ border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+  .edu-card h3{ font-size: 1rem; margin-bottom: 4px; }
+  .edu-card .school{ color: var(--accent-2); font-size: 14px; margin-bottom: 8px; }
+  .edu-card .date{ font-family: var(--mono); color: var(--text-dim); font-size: 12.5px; margin-bottom: 10px; display:block; }
+  .edu-card ul{ padding-left: 18px; color: var(--text-dim); font-size: 14px; }
+  .edu-card li::marker{ color: var(--accent); }
+
+  .cert-list{ display:flex; flex-direction:column; gap:10px; }
+  .cert-item{
+    display:flex; align-items:center; gap:10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .cert-item:hover{ border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+  .cert-item::before{ content:"◆"; color: var(--accent); font-size: 11px; }
+
+  /* Contact */
+  .contact-box{
+    background: linear-gradient(135deg, rgba(77,214,196,0.08), rgba(124,157,255,0.08));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 50px 40px;
+    text-align: center;
+  }
+  .contact-box h2{ font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 12px; }
+  .contact-box p{ color: var(--text-dim); margin-bottom: 26px; }
+  .contact-links{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+
+  footer{
+    text-align:center;
+    padding: 30px 24px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    border-top: 1px solid var(--border);
+  }
+
+  .reveal{
+    opacity:0;
+    transform: translateY(22px);
+    transition: opacity 0.7s cubic-bezier(.16,.8,.32,1), transform 0.7s cubic-bezier(.16,.8,.32,1);
+    transition-delay: var(--delay, 0s);
+  }
+  .reveal.visible{ opacity:1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="scrollBar"></div>
+
+<nav>
+  <div class="container">
+    <div class="logo">lai<span>yoke</span>yau.dev</div>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">about</a></li>
+      <li><a href="#skills">skills</a></li>
+      <li><a href="#experience">experience</a></li>
+      <li><a href="#project">project</a></li>
+      <li><a href="#education">education</a></li>
+      <li><a href="#contact">contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero" id="heroSection">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="particles" id="particles"></div>
+  <div class="container">
+    <div class="eyebrow">AVAILABLE FOR OPPORTUNITIES</div>
+    <h1>Lai Yoke Yau<br><span class="grad" id="typed-role">Data Science Student</span></h1>
+    <p>Data Science undergraduate building full-stack ML pipelines, AI-assisted automation, and web applications — comfortable across the stack from model deployment to production workflows.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#project">View Featured Project</a>
+      <a class="btn btn-ghost" href="#contact">Get in Touch</a>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <div class="section-tag">01 · About</div>
+    <h2 class="section-title reveal">Who I am</h2>
+    <p class="about-text reveal">
+      I'm a Data Science major at Tunku Abdul Rahman University of Management and Technology (CGPA 3.77),
+      combining a foundation in Python, SQL, and machine learning with hands-on delivery experience across
+      n8n workflow automation, React/JavaScript engineering, and enterprise ERP implementation. I like working
+      end-to-end — from data modeling and model deployment to client-facing implementation and shipping
+      real product features.
+    </p>
+    <div class="about-grid">
+      <div class="stat"><div class="num">3.77</div><div class="label">CGPA · Dean's List x2</div></div>
+      <div class="stat"><div class="num">4+</div><div class="label">Roles across data, AI &amp; web</div></div>
+      <div class="stat"><div class="num">3</div><div class="label">Languages spoken fluently</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="container">
+    <div class="section-tag">02 · Skills</div>
+    <h2 class="section-title reveal">Technical Toolkit</h2>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <h3>Programming</h3>
+        <div class="tag-row">
+          <span class="tag">Python</span><span class="tag">Java</span><span class="tag">JavaScript</span>
+          <span class="tag">C</span><span class="tag">SQL</span><span class="tag">HTML/CSS</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <h3>Data &amp; ML</h3>
+        <div class="tag-row">
+          <span class="tag">Pandas</span><span class="tag">NumPy</span><span class="tag">XGBoost</span>
+          <span class="tag">SHAP</span><span class="tag">Scikit-learn</span><span class="tag">Excel</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <h3>AI &amp; Automation</h3>
+        <div class="tag-row">
+          <span class="tag">Claude Code</span><span class="tag">MCP</span><span class="tag">AI Fluency</span>
+          <span class="tag">n8n</span><span class="tag">Vibe Coding</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <h3>Frameworks &amp; Tools</h3>
+        <div class="tag-row">
+          <span class="tag">React.js</span><span class="tag">FastAPI</span><span class="tag">Streamlit</span>
+          <span class="tag">Git</span><span class="tag">Jupyter</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="container">
+    <div class="section-tag">03 · Experience</div>
+    <h2 class="section-title reveal">Where I've Worked</h2>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-header">
+          <div class="tl-role">Product Developer <span class="company">· Supern8n.com</span></div>
+          <div class="tl-date">Jan 2026 – Present</div>
+        </div>
+        <div class="tl-loc">Kuala Lumpur, Malaysia</div>
+        <ul>
+          <li>Build and maintain n8n workflow automations for client-facing products, translating business requirements into reliable automated processes.</li>
+          <li>Develop full-stack features using a React frontend and JavaScript backend, applying AI-assisted (vibe-coding) development practices to accelerate delivery.</li>
+        </ul>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-header">
+          <div class="tl-role">Intern <span class="company">· AITraining2U.com</span></div>
+          <div class="tl-date">Jan 2026 – Present</div>
+        </div>
+        <div class="tl-loc">Kuala Lumpur, Malaysia</div>
+        <ul>
+          <li>Contribute to project development using AI-assisted vibe-coding workflows, supporting rapid prototyping and iteration.</li>
+        </ul>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-header">
+          <div class="tl-role">Implementation Consultant <span class="company">· Yonyou (Malaysia) Sdn Bhd</span></div>
+          <div class="tl-date">Nov 2023 – Jan 2024</div>
+        </div>
+        <div class="tl-loc">Kuala Lumpur, Malaysia</div>
+        <ul>
+          <li>Delivered customer service and after-sales support for an ERP platform, resolving client issues to maintain satisfaction and long-term engagement.</li>
+          <li>Designed and implemented customized invoice templates using a low-code platform enhanced with Java, streamlining client-specific billing workflows.</li>
+          <li>Documented and summarized meeting minutes to clearly capture client requirements and support project alignment.</li>
+        </ul>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-header">
+          <div class="tl-role">Data Entry Clerk <span class="company">· Gundam.my</span></div>
+          <div class="tl-date">Jan 2021 – Jan 2023</div>
+        </div>
+        <div class="tl-loc">Ampang, Selangor, Malaysia</div>
+        <ul>
+          <li>Listed and maintained product entries across e-commerce platforms including Lazada and Shopee, ensuring accurate and up-to-date catalogs.</li>
+          <li>Produced product images and video edits to support listing quality, gaining hands-on exposure to end-to-end e-commerce operations.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="project">
+  <div class="container">
+    <div class="section-tag">04 · Featured Project</div>
+    <h2 class="section-title reveal">Agentic MLOps for Explainable Credit Risk</h2>
+    <div class="project-card">
+      <h3>Final Year Project</h3>
+      <div class="sub">XGBoost · React · FastAPI · SHAP · Gemini API · ModelOps</div>
+      <ul>
+        <li>Built a full-stack MLOps pipeline for credit risk prediction using XGBoost, with a React frontend for input collection and a FastAPI backend for real-time inference.</li>
+        <li>Implemented real-time SHAP value calculation integrated with the Gemini API to generate plain-language explanations and remediation guidance for loan applicants.</li>
+        <li>Developed an automated ModelOps framework in Python covering data drift monitoring, automated retraining, model versioning, and structured Model Cards for governance and auditability.</li>
+      </ul>
+      <div class="tag-row">
+        <span class="tag">Explainable AI</span><span class="tag">Credit Risk</span>
+        <span class="tag">Model Governance</span><span class="tag">Full-Stack ML</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="container">
+    <div class="section-tag">05 · Education &amp; Certifications</div>
+    <h2 class="section-title reveal">Background</h2>
+    <div class="two-col">
+      <div class="edu-card">
+        <h3>Bachelor's Degree, Computer Science (Data Science major)</h3>
+        <div class="school">Tunku Abdul Rahman University of Management and Technology</div>
+        <span class="date">June 2024 – July 2026</span>
+        <ul>
+          <li>CGPA: 3.77 · Dean's List, 2 semesters</li>
+          <li>Activities: DevMatch Hackathon, Bursa Young Investor Club (BYIC)</li>
+        </ul>
+      </div>
+      <div class="cert-list">
+        <div class="cert-item">Introduction to Model Context Protocol</div>
+        <div class="cert-item">AI Fluency for Students</div>
+        <div class="cert-item">Claude Code in Action</div>
+        <div class="cert-item">Introduction to Claude Cowork</div>
+        <div class="cert-item">Professional AI Engineering Vibe Coding</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="contact-box reveal">
+      <h2>Let's build something together</h2>
+      <p>Open to Data Science, AI Engineering, and Workflow Automation opportunities.</p>
+      <div class="contact-links">
+        <a class="btn btn-primary" href="mailto:laiyokeyau@gmail.com">Email Me</a>
+        <a class="btn btn-ghost" href="https://www.linkedin.com/in/yoke-yau-lai" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn btn-ghost" href="tel:+60183822330">+60 18-382 2330</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2026 Lai Yoke Yau · Built with code, coffee, and a little vibe-coding.
+</footer>
+
+<script>
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
+
+  var staggerGroups = [
+    '.skills-grid .skill-card',
+    '.timeline .tl-item',
+    '.two-col .edu-card, .two-col .cert-list',
+    '.about-grid .stat'
+  ];
+  staggerGroups.forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(el, i){
+      el.classList.add('reveal');
+      el.style.setProperty('--delay', (i * 0.12) + 's');
+    });
+  });
+
+  var revealEls = document.querySelectorAll('.reveal');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(function(el){ io.observe(el); });
+
+  var scrollBar = document.getElementById('scrollBar');
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    scrollBar.style.width = scrolled + '%';
+  });
+
+  var roles = ['Data Science Student', 'AI Workflow Engineer', 'Full-Stack Builder', 'Vibe Coder'];
+  var typedEl = document.getElementById('typed-role');
+  var roleIndex = 0, charIndex = roles[0].length, deleting = false;
+  function typeLoop(){
+    var current = roles[roleIndex];
+    if(!deleting){
+      charIndex++;
+      if(charIndex > current.length){ deleting = true; setTimeout(typeLoop, 1500); return; }
+    } else {
+      charIndex--;
+      if(charIndex < 0){ deleting = false; roleIndex = (roleIndex + 1) % roles.length; charIndex = 0; }
+    }
+    typedEl.textContent = current.slice(0, charIndex);
+    setTimeout(typeLoop, deleting ? 45 : 75);
+  }
+  setTimeout(typeLoop, 1200);
+
+  var particleWrap = document.getElementById('particles');
+  var particleCount = window.innerWidth < 640 ? 14 : 28;
+  for(var i = 0; i < particleCount; i++){
+    var p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.bottom = '-10px';
+    p.style.animationDuration = (8 + Math.random() * 10) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.width = p.style.height = (2 + Math.random() * 2) + 'px';
+    particleWrap.appendChild(p);
+  }
+
+  var heroSection = document.getElementById('heroSection');
+  var orbs = document.querySelectorAll('.orb');
+  heroSection.addEventListener('mousemove', function(e){
+    var rect = heroSection.getBoundingClientRect();
+    var x = (e.clientX - rect.left) / rect.width - 0.5;
+    var y = (e.clientY - rect.top) / rect.height - 0.5;
+    orbs.forEach(function(orb, i){
+      var strength = (i + 1) * 12;
+      orb.style.transform = 'translate(' + (x * strength) + 'px, ' + (y * strength) + 'px)';
+    });
+  });
+  heroSection.addEventListener('mouseleave', function(){
+    orbs.forEach(function(orb){ orb.style.transform = ''; });
+  });
+</script>
+
+</body>
+</html>
