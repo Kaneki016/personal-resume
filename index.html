@@ -1081,4 +1081,9 @@
     lightboxImg.src = '';
   }
   document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
-  li
+  lightbox.addEventListener('click', function(e){ if(e.target === lightbox){ closeLightbox(); } });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeLightbox(); } });
+</script>
+
+</body>
+</html>
