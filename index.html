@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lai Yoke Yau — Data Science & AI Engineer</title>
+<title>Lai Yoke Yau — Data Engineer & AI Workflow Engineer</title>
 <style>
   :root{
     --bg: #0a0e14;
@@ -27,7 +27,6 @@
   }
   ::selection{ background: var(--accent); color: #0a0e14; }
 
-  /* Scroll progress bar */
   #scrollBar{
     position: fixed;
     top: 0; left: 0;
@@ -48,7 +47,6 @@
     padding: 0 24px;
   }
 
-  /* Nav */
   nav{
     position: sticky;
     top: 0;
@@ -73,12 +71,12 @@
   .logo span{ color: var(--accent); }
   .nav-links{
     display: flex;
-    gap: 28px;
+    gap: 20px;
     list-style: none;
   }
   .nav-links a{
     color: var(--text-dim);
-    font-size: 14px;
+    font-size: 13.5px;
     font-family: var(--mono);
     position:relative;
   }
@@ -94,7 +92,7 @@
   .nav-links a:hover::after{ width:100%; }
   .nav-toggle{ display:none; background:none; border:none; color:var(--text); font-size:22px; cursor:pointer; }
 
-  @media (max-width: 640px){
+  @media (max-width: 760px){
     .nav-links{
       position: fixed;
       top: 64px; left: 0; right: 0;
@@ -110,7 +108,6 @@
     .nav-toggle{ display:block; }
   }
 
-  /* Hero */
   .hero{
     min-height: 86vh;
     display: flex;
@@ -189,6 +186,43 @@
     100%{ transform: translateY(-100vh) translateX(20px); opacity:0; }
   }
 
+  .hero .container{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:48px;
+  }
+  .hero-text{ flex: 1 1 auto; min-width:0; }
+  .hero-photo-wrap{
+    flex: 0 0 auto;
+    width:190px; height:190px;
+    border-radius:50%;
+    padding:4px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    opacity:0;
+    animation: heroIn 0.7s ease forwards, floatPhoto 6s ease-in-out infinite 0.9s;
+    animation-delay: 0.15s, 0.9s;
+    box-shadow: 0 0 40px rgba(77,214,196,0.25);
+  }
+  .hero-photo-wrap img{
+    width:100%; height:100%;
+    object-fit: cover;
+    border-radius:50%;
+    display:block;
+    border: 3px solid var(--bg);
+  }
+  @keyframes floatPhoto{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-10px); }
+  }
+  @media (max-width:700px){
+    .hero .container{ flex-direction: column-reverse; text-align:center; gap:28px; }
+    .hero-photo-wrap{ width:140px; height:140px; }
+    .hero p{ margin-left:auto; margin-right:auto; }
+    .hero-actions{ justify-content:center; }
+    .eyebrow{ justify-content:center; }
+  }
+
   .eyebrow{
     font-family: var(--mono);
     color: var(--accent);
@@ -214,7 +248,7 @@
     50%{ box-shadow: 0 0 16px var(--accent); }
   }
   .hero h1{
-    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-size: clamp(2.1rem, 5.6vw, 3.3rem);
     font-weight: 700;
     letter-spacing: -1px;
     margin-bottom: 14px;
@@ -239,7 +273,7 @@
   .hero p{
     color: var(--text-dim);
     font-size: 1.1rem;
-    max-width: 620px;
+    max-width: 560px;
     margin-bottom: 30px;
     opacity:0;
     animation: heroIn 0.7s ease forwards;
@@ -265,6 +299,8 @@
     align-items:center;
     gap:8px;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    cursor:pointer;
+    background:none;
   }
   .btn:hover{ transform: translateY(-2px); }
   .btn-primary{
@@ -282,7 +318,6 @@
   .btn-ghost{ color: var(--text); }
   .btn-ghost:hover{ text-decoration:none; border-color: var(--accent); color: var(--accent); }
 
-  /* Section shared */
   section{ padding: 90px 0; border-top: 1px solid var(--border); }
   .section-tag{
     font-family: var(--mono);
@@ -299,7 +334,6 @@
   }
   .section-title span{ color: var(--text-dim); }
 
-  /* About */
   .about-text{ color: var(--text-dim); font-size: 1.05rem; max-width: 720px; }
   .about-grid{
     margin-top: 40px;
@@ -319,7 +353,6 @@
   .stat .num{ font-family: var(--mono); color: var(--accent); font-size: 1.6rem; font-weight:700; }
   .stat .label{ color: var(--text-dim); font-size: 13px; margin-top: 4px; }
 
-  /* Skills */
   .skills-grid{
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -353,7 +386,6 @@
     border-radius: 5px;
   }
 
-  /* Experience timeline */
   .timeline{ position: relative; padding-left: 28px; }
   .timeline::before{
     content:"";
@@ -390,22 +422,27 @@
   .tl-item li{ margin-bottom: 6px; }
   .tl-item li::marker{ color: var(--accent); }
 
-  /* Project */
+  .project-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  @media (max-width:760px){ .project-grid{ grid-template-columns: 1fr; } }
   .project-card{
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 32px;
+    padding: 26px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display:flex;
+    flex-direction:column;
   }
   .project-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
-  .project-card h3{ font-size: 1.3rem; margin-bottom: 6px; }
-  .project-card .sub{ color: var(--text-dim); font-family: var(--mono); font-size: 13px; margin-bottom: 18px; }
-  .project-card ul{ padding-left: 18px; color: var(--text-dim); margin-bottom: 20px; }
-  .project-card li{ margin-bottom: 8px; }
-  .project-card li::marker{ color: var(--accent); }
+  .project-card h3{ font-size: 1.1rem; margin-bottom: 6px; }
+  .project-card .sub{ color: var(--accent); font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .project-card p{ color: var(--text-dim); font-size: 14px; margin-bottom: 16px; flex:1; }
+  .project-card .tag-row{ margin-top: auto; }
 
-  /* Education / Certs */
   .two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 28px; }
   @media (max-width:640px){ .two-col{ grid-template-columns: 1fr; } }
   .edu-card{
@@ -413,29 +450,144 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 22px;
+    margin-bottom: 16px;
     transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
   }
+  .edu-card:last-child{ margin-bottom: 0; }
   .edu-card:hover{ border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
   .edu-card h3{ font-size: 1rem; margin-bottom: 4px; }
   .edu-card .school{ color: var(--accent-2); font-size: 14px; margin-bottom: 8px; }
   .edu-card .date{ font-family: var(--mono); color: var(--text-dim); font-size: 12.5px; margin-bottom: 10px; display:block; }
   .edu-card ul{ padding-left: 18px; color: var(--text-dim); font-size: 14px; }
   .edu-card li::marker{ color: var(--accent); }
+  .edu-card .plain{ color: var(--text-dim); font-size: 14px; }
 
   .cert-list{ display:flex; flex-direction:column; gap:10px; }
   .cert-item{
-    display:flex; align-items:center; gap:10px;
+    display:flex; align-items:center; gap:12px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 10px 16px;
+    font-size: 13.5px;
     transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
   }
   .cert-item:hover{ border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
-  .cert-item::before{ content:"◆"; color: var(--accent); font-size: 11px; }
+  .cert-thumb{
+    width:34px; height:34px;
+    border-radius:6px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    flex-shrink:0;
+  }
+  .cert-bullet{
+    width:8px; height:8px;
+    border-radius:2px;
+    background: var(--accent);
+    flex-shrink:0;
+    transform: rotate(45deg);
+  }
+  .cert-item .cert-issuer{ color: var(--text-dim); font-size: 12px; display:block; }
 
-  /* Contact */
+  .awards-title{
+    font-family: var(--mono);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin: 20px 0 12px;
+  }
+  .award-item{
+    display:flex; align-items:baseline; gap:10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    margin-bottom: 10px;
+  }
+  .award-item:last-child{ margin-bottom:0; }
+  .award-item .award-badge{ color: var(--accent); font-family: var(--mono); font-weight:700; font-size:12px; white-space:nowrap; }
+
+  .gallery-subtitle{
+    font-family: var(--mono);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin: 28px 0 14px;
+  }
+  .gallery-subtitle:first-of-type{ margin-top:0; }
+  .gallery-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width:700px){ .gallery-grid{ grid-template-columns: repeat(2, 1fr); } }
+  .gallery-item{
+    position:relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 10px;
+    overflow:hidden;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: var(--card);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .gallery-item:hover{ transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 28px rgba(0,0,0,0.35); border-color: var(--accent); }
+  .gallery-item img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .gallery-item::after{
+    content:"⤢";
+    position:absolute;
+    top:8px; right:8px;
+    width:26px; height:26px;
+    border-radius:50%;
+    background: rgba(10,14,20,0.7);
+    color: var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px;
+    opacity:0;
+    transition: opacity 0.2s ease;
+  }
+  .gallery-item:hover::after{ opacity:1; }
+  .gallery-empty{
+    color: var(--text-dim);
+    font-size: 13.5px;
+    font-family: var(--mono);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 22px;
+    text-align:center;
+  }
+
+  #lightbox{
+    position: fixed; inset:0;
+    background: rgba(6,9,14,0.92);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index: 300;
+    padding: 40px;
+    cursor: zoom-out;
+  }
+  #lightbox.open{ display:flex; }
+  #lightbox img{
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  #lightboxClose{
+    position:absolute;
+    top:22px; right:28px;
+    color: var(--text);
+    font-size: 28px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    font-family: var(--mono);
+  }
+
   .contact-box{
     background: linear-gradient(135deg, rgba(77,214,196,0.08), rgba(124,157,255,0.08));
     border: 1px solid var(--border);
@@ -477,7 +629,8 @@
       <li><a href="#about">about</a></li>
       <li><a href="#skills">skills</a></li>
       <li><a href="#experience">experience</a></li>
-      <li><a href="#project">project</a></li>
+      <li><a href="#projects">projects</a></li>
+      <li><a href="#proof">proof</a></li>
       <li><a href="#education">education</a></li>
       <li><a href="#contact">contact</a></li>
     </ul>
@@ -490,12 +643,17 @@
   <div class="orb orb3"></div>
   <div class="particles" id="particles"></div>
   <div class="container">
-    <div class="eyebrow">AVAILABLE FOR OPPORTUNITIES</div>
-    <h1>Lai Yoke Yau<br><span class="grad" id="typed-role">Data Science Student</span></h1>
-    <p>Data Science undergraduate building full-stack ML pipelines, AI-assisted automation, and web applications — comfortable across the stack from model deployment to production workflows.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="#project">View Featured Project</a>
-      <a class="btn btn-ghost" href="#contact">Get in Touch</a>
+    <div class="hero-text">
+      <div class="eyebrow">AVAILABLE FOR OPPORTUNITIES</div>
+      <h1>Lai Yoke Yau<br><span class="grad" id="typed-role">Data Science Student</span></h1>
+      <p>Data Science undergraduate building full-stack ML pipelines, AI-assisted automation, and web applications — aspiring Data Engineer &amp; AI Workflow Engineer with experience in Python, SQL, AWS Cloud, n8n, and Claude Code.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#projects">View My Projects</a>
+        <a class="btn btn-ghost" href="#contact">Get in Touch</a>
+      </div>
+    </div>
+    <div class="hero-photo-wrap" id="heroPhotoWrap">
+      <img id="heroPhoto" alt="Lai Yoke Yau">
     </div>
   </div>
 </section>
@@ -506,15 +664,15 @@
     <h2 class="section-title reveal">Who I am</h2>
     <p class="about-text reveal">
       I'm a Data Science major at Tunku Abdul Rahman University of Management and Technology (CGPA 3.77),
-      combining a foundation in Python, SQL, and machine learning with hands-on delivery experience across
-      n8n workflow automation, React/JavaScript engineering, and enterprise ERP implementation. I like working
-      end-to-end — from data modeling and model deployment to client-facing implementation and shipping
+      combining a foundation in Python, SQL, AWS Cloud, and machine learning with hands-on delivery experience
+      across AI training facilitation, product development, and enterprise ERP implementation. I like working
+      end-to-end — from data modeling and cloud infrastructure to client-facing delivery and shipping
       real product features.
     </p>
     <div class="about-grid">
       <div class="stat"><div class="num">3.77</div><div class="label">CGPA · Dean's List x2</div></div>
       <div class="stat"><div class="num">4+</div><div class="label">Roles across data, AI &amp; web</div></div>
-      <div class="stat"><div class="num">3</div><div class="label">Languages spoken fluently</div></div>
+      <div class="stat"><div class="num">4</div><div class="label">Languages spoken</div></div>
     </div>
   </div>
 </section>
@@ -532,10 +690,10 @@
         </div>
       </div>
       <div class="skill-card">
-        <h3>Data &amp; ML</h3>
+        <h3>Data &amp; Cloud</h3>
         <div class="tag-row">
-          <span class="tag">Pandas</span><span class="tag">NumPy</span><span class="tag">XGBoost</span>
-          <span class="tag">SHAP</span><span class="tag">Scikit-learn</span><span class="tag">Excel</span>
+          <span class="tag">Pandas</span><span class="tag">NumPy</span><span class="tag">AWS Cloud</span>
+          <span class="tag">Excel</span>
         </div>
       </div>
       <div class="skill-card">
@@ -564,37 +722,37 @@
 
       <div class="tl-item">
         <div class="tl-header">
-          <div class="tl-role">Product Developer <span class="company">· Supern8n.com</span></div>
+          <div class="tl-role">Product Developer <span class="company">· Super Products</span></div>
           <div class="tl-date">Jan 2026 – Present</div>
         </div>
         <div class="tl-loc">Kuala Lumpur, Malaysia</div>
         <ul>
-          <li>Build and maintain n8n workflow automations for client-facing products, translating business requirements into reliable automated processes.</li>
-          <li>Develop full-stack features using a React frontend and JavaScript backend, applying AI-assisted (vibe-coding) development practices to accelerate delivery.</li>
+          <li>Developed the SuperHomes.my website using Claude Code; set up and maintained the hosting server.</li>
+          <li>Helped debug and implement features in SuperAgentK, including multiple mini-apps within the product.</li>
         </ul>
       </div>
 
       <div class="tl-item">
         <div class="tl-header">
-          <div class="tl-role">Intern <span class="company">· AITraining2U.com</span></div>
+          <div class="tl-role">AI Training Facilitator <span class="company">· AITraining2U PLT</span></div>
           <div class="tl-date">Jan 2026 – Present</div>
         </div>
         <div class="tl-loc">Kuala Lumpur, Malaysia</div>
         <ul>
-          <li>Contribute to project development using AI-assisted vibe-coding workflows, supporting rapid prototyping and iteration.</li>
+          <li>Conducted and facilitated AI training sessions for corporate clients, providing logistics and technical support during sessions.</li>
+          <li>Shared practical experience using AI and n8n in daily workflows such as product development, helping attendees apply AI tools effectively.</li>
         </ul>
       </div>
 
       <div class="tl-item">
         <div class="tl-header">
-          <div class="tl-role">Implementation Consultant <span class="company">· Yonyou (Malaysia) Sdn Bhd</span></div>
+          <div class="tl-role">Implementation Consultant <span class="company">· YonYou Malaysia Sdn Bhd</span></div>
           <div class="tl-date">Nov 2023 – Jan 2024</div>
         </div>
         <div class="tl-loc">Kuala Lumpur, Malaysia</div>
         <ul>
-          <li>Delivered customer service and after-sales support for an ERP platform, resolving client issues to maintain satisfaction and long-term engagement.</li>
-          <li>Designed and implemented customized invoice templates using a low-code platform enhanced with Java, streamlining client-specific billing workflows.</li>
-          <li>Documented and summarized meeting minutes to clearly capture client requirements and support project alignment.</li>
+          <li>Delivered customer service and after-sales support, providing solutions based on issues clients faced using the product.</li>
+          <li>Summarized meeting minutes to conclude requirements gathered from clients.</li>
         </ul>
       </div>
 
@@ -614,46 +772,103 @@
   </div>
 </section>
 
-<section id="project">
+<section id="projects">
   <div class="container">
-    <div class="section-tag">04 · Featured Project</div>
-    <h2 class="section-title reveal">Agentic MLOps for Explainable Credit Risk</h2>
-    <div class="project-card">
-      <h3>Final Year Project</h3>
-      <div class="sub">XGBoost · React · FastAPI · SHAP · Gemini API · ModelOps</div>
-      <ul>
-        <li>Built a full-stack MLOps pipeline for credit risk prediction using XGBoost, with a React frontend for input collection and a FastAPI backend for real-time inference.</li>
-        <li>Implemented real-time SHAP value calculation integrated with the Gemini API to generate plain-language explanations and remediation guidance for loan applicants.</li>
-        <li>Developed an automated ModelOps framework in Python covering data drift monitoring, automated retraining, model versioning, and structured Model Cards for governance and auditability.</li>
-      </ul>
-      <div class="tag-row">
-        <span class="tag">Explainable AI</span><span class="tag">Credit Risk</span>
-        <span class="tag">Model Governance</span><span class="tag">Full-Stack ML</span>
+    <div class="section-tag">04 · Projects</div>
+    <h2 class="section-title reveal">Things I've Built</h2>
+    <div class="project-grid">
+
+      <div class="project-card">
+        <div class="sub">Freelance</div>
+        <h3>Client Portal Redesign — IMAX Financial Sdn Bhd</h3>
+        <p>Redesigned the company's WordPress site from a static website into a dynamic one, adding WhatsApp chat integration and interactive functions such as a Money Personality Quiz page and a Retirement Calculator.</p>
+        <div class="tag-row">
+          <span class="tag">WordPress</span><span class="tag">WhatsApp API</span>
+        </div>
       </div>
+
+      <div class="project-card">
+        <div class="sub">Hobby Project</div>
+        <h3>Video Translator</h3>
+        <p>A website that translates videos into another language, built for fun.</p>
+        <div class="tag-row">
+          <span class="tag">Video Processing</span><span class="tag">Translation</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="sub">Personal Project</div>
+        <h3>Cards Against Redditors</h3>
+        <p>A real-time multiplayer game where players weaponise actual Reddit comments to win debates.</p>
+        <div class="tag-row">
+          <span class="tag">Real-time Multiplayer</span><span class="tag">Game Dev</span>
+        </div>
+      </div>
+
     </div>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="container">
+    <div class="section-tag">05 · Proof of Work</div>
+    <h2 class="section-title reveal">Screenshots &amp; Photos</h2>
+
+    <div class="gallery-subtitle">Project Screenshots</div>
+    <div class="gallery-grid" id="projectGallery"></div>
+
+    <div class="gallery-subtitle">Training &amp; Work</div>
+    <div class="gallery-grid" id="trainingGallery"></div>
   </div>
 </section>
 
 <section id="education">
   <div class="container">
-    <div class="section-tag">05 · Education &amp; Certifications</div>
+    <div class="section-tag">06 · Education, Certifications &amp; Awards</div>
     <h2 class="section-title reveal">Background</h2>
     <div class="two-col">
-      <div class="edu-card">
-        <h3>Bachelor's Degree, Computer Science (Data Science major)</h3>
-        <div class="school">Tunku Abdul Rahman University of Management and Technology</div>
-        <span class="date">June 2024 – July 2026</span>
-        <ul>
-          <li>CGPA: 3.77 · Dean's List, 2 semesters</li>
-          <li>Activities: DevMatch Hackathon, Bursa Young Investor Club (BYIC)</li>
-        </ul>
+      <div>
+        <div class="edu-card">
+          <h3>Degree in Data Science</h3>
+          <div class="school">Tunku Abdul Rahman University of Management and Technology</div>
+          <span class="date">June 2024 – In progress</span>
+          <ul>
+            <li>CGPA: 3.77 · Dean's List: 2 semesters · President's List: 1 semester</li>
+            <li>DevMatch Hackathon, The 2025 Great Malaysia AI Hackathon, Cursor Hackathon</li>
+            <li>First Runner-Up — ISEK.AI ACG Hackathon (2025)</li>
+            <li>2nd Runner-Up — NextUp Hackathon (2025)</li>
+          </ul>
+        </div>
+        <div class="edu-card">
+          <h3>Diploma in Computer Science</h3>
+          <div class="school">Tunku Abdul Rahman University of Management and Technology</div>
+          <span class="date">2022 – 2024</span>
+          <ul>
+            <li>CGPA: 3.8704</li>
+            <li>Gold Award, Soft Skills Competency Certificate (whole Diploma)</li>
+            <li>Organised Peer Support Society's Fund Raising (2022) &amp; Diabolo Festival (2023)</li>
+          </ul>
+        </div>
+        <div class="edu-card">
+          <h3>SMK Taman Seraya</h3>
+          <span class="date">2016 – 2022</span>
+          <div class="plain">SPM Result: 1A+ 3A 1A- 4B+ 1C+</div>
+        </div>
       </div>
-      <div class="cert-list">
-        <div class="cert-item">Introduction to Model Context Protocol</div>
-        <div class="cert-item">AI Fluency for Students</div>
-        <div class="cert-item">Claude Code in Action</div>
-        <div class="cert-item">Introduction to Claude Cowork</div>
-        <div class="cert-item">Professional AI Engineering Vibe Coding</div>
+      <div>
+        <div class="cert-list" id="certList">
+          <div class="cert-item" data-cert="aws-academy"><span class="cert-bullet"></span><span>Cloud Foundations, Training Badge <span class="cert-issuer">AWS Academy</span></span></div>
+          <div class="cert-item" data-cert="soft-skills"><span class="cert-bullet"></span><span>Soft Skills Competency, Gold Award <span class="cert-issuer">TAR UMT</span></span></div>
+          <div class="cert-item" data-cert="muet"><span class="cert-bullet"></span><span>MUET, Band 4 <span class="cert-issuer">TAR UMT</span></span></div>
+          <div class="cert-item" data-cert="mcp"><span class="cert-bullet"></span><span>Introduction to Model Context Protocol <span class="cert-issuer">Anthropic</span></span></div>
+          <div class="cert-item" data-cert="ai-fluency"><span class="cert-bullet"></span><span>AI Fluency for Students <span class="cert-issuer">Anthropic</span></span></div>
+          <div class="cert-item" data-cert="claude-code"><span class="cert-bullet"></span><span>Claude Code in Action <span class="cert-issuer">Anthropic</span></span></div>
+          <div class="cert-item" data-cert="claude-cowork"><span class="cert-bullet"></span><span>Introduction to Claude Cowork <span class="cert-issuer">Anthropic</span></span></div>
+          <div class="cert-item" data-cert="vibe-coding"><span class="cert-bullet"></span><span>Professional AI Engineering Vibe Coding <span class="cert-issuer">Anthropic</span></span></div>
+        </div>
+        <div class="awards-title">Awards</div>
+        <div class="award-item"><span class="award-badge">1ST RUNNER-UP</span><span>ISEK.AI ACG Hackathon (2025)</span></div>
+        <div class="award-item"><span class="award-badge">2ND RUNNER-UP</span><span>NextUp Hackathon (2025)</span></div>
       </div>
     </div>
   </div>
@@ -663,7 +878,7 @@
   <div class="container">
     <div class="contact-box reveal">
       <h2>Let's build something together</h2>
-      <p>Open to Data Science, AI Engineering, and Workflow Automation opportunities.</p>
+      <p>Open to Data Engineering, AI Engineering, and Workflow Automation opportunities.</p>
       <div class="contact-links">
         <a class="btn btn-primary" href="mailto:laiyokeyau@gmail.com">Email Me</a>
         <a class="btn btn-ghost" href="https://www.linkedin.com/in/yoke-yau-lai" target="_blank" rel="noopener">LinkedIn</a>
@@ -677,32 +892,37 @@
   © 2026 Lai Yoke Yau · Built with code, coffee, and a little vibe-coding.
 </footer>
 
+<div id="lightbox">
+  <button id="lightboxClose" aria-label="Close">✕</button>
+  <img id="lightboxImg" src="" alt="Expanded view">
+</div>
+
 <script>
-  const toggle = document.getElementById('navToggle');
-  const links = document.getElementById('navLinks');
-  toggle.addEventListener('click', () => links.classList.toggle('open'));
-  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
+  var toggle = document.getElementById('navToggle');
+  var links = document.getElementById('navLinks');
+  toggle.addEventListener('click', function(){ links.classList.toggle('open'); });
+  links.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ links.classList.remove('open'); }); });
 
   var staggerGroups = [
     '.skills-grid .skill-card',
     '.timeline .tl-item',
-    '.two-col .edu-card, .two-col .cert-list',
+    '.project-grid .project-card',
+    '#certList .cert-item',
     '.about-grid .stat'
   ];
   staggerGroups.forEach(function(sel){
     document.querySelectorAll(sel).forEach(function(el, i){
       el.classList.add('reveal');
-      el.style.setProperty('--delay', (i * 0.12) + 's');
+      el.style.setProperty('--delay', (i * 0.1) + 's');
     });
   });
 
-  var revealEls = document.querySelectorAll('.reveal');
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
     });
   }, { threshold: 0.15 });
-  revealEls.forEach(function(el){ io.observe(el); });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 
   var scrollBar = document.getElementById('scrollBar');
   window.addEventListener('scroll', function(){
@@ -711,7 +931,7 @@
     scrollBar.style.width = scrolled + '%';
   });
 
-  var roles = ['Data Science Student', 'AI Workflow Engineer', 'Full-Stack Builder', 'Vibe Coder'];
+  var roles = ['Data Science Student', 'AI Training Facilitator', 'Aspiring Data Engineer', 'Product Developer'];
   var typedEl = document.getElementById('typed-role');
   var roleIndex = 0, charIndex = roles[0].length, deleting = false;
   function typeLoop(){
@@ -755,6 +975,96 @@
   heroSection.addEventListener('mouseleave', function(){
     orbs.forEach(function(orb){ orb.style.transform = ''; });
   });
+
+  var IMG_EXTS = ['jpg', 'jpeg', 'png', 'webp'];
+
+  function tryLoadVariants(basePath, exts, cb){
+    var idx = 0;
+    function attempt(){
+      if(idx >= exts.length){ cb(null); return; }
+      var src = basePath + '.' + exts[idx];
+      var img = new Image();
+      img.onload = function(){ cb(src); };
+      img.onerror = function(){ idx++; attempt(); };
+      img.src = src;
+    }
+    attempt();
+  }
+
+  tryLoadVariants('images/profile', IMG_EXTS, function(src){
+    var wrap = document.getElementById('heroPhotoWrap');
+    if(src){
+      document.getElementById('heroPhoto').src = src;
+    } else {
+      wrap.style.display = 'none';
+    }
+  });
+
+  document.querySelectorAll('.cert-item').forEach(function(item){
+    var key = item.getAttribute('data-cert');
+    tryLoadVariants('images/certs/' + key, IMG_EXTS, function(src){
+      if(src){
+        var bullet = item.querySelector('.cert-bullet');
+        var img = document.createElement('img');
+        img.className = 'cert-thumb';
+        img.src = src;
+        img.alt = key;
+        bullet.replaceWith(img);
+      }
+    });
+  });
+
+  function buildGallery(containerId, folder, maxCount, emptyMsg){
+    var container = document.getElementById(containerId);
+    var found = 0;
+    var checked = 0;
+    function finalize(){
+      if(found === 0){
+        var empty = document.createElement('div');
+        empty.className = 'gallery-empty';
+        empty.style.gridColumn = '1 / -1';
+        empty.textContent = emptyMsg;
+        container.appendChild(empty);
+      }
+    }
+    for(var i = 1; i <= maxCount; i++){
+      (function(i){
+        var base = 'images/' + folder + '/' + folder + '-' + i;
+        tryLoadVariants(base, IMG_EXTS, function(src){
+          checked++;
+          if(src){
+            found++;
+            var item = document.createElement('div');
+            item.className = 'gallery-item reveal visible';
+            var img = document.createElement('img');
+            img.src = src;
+            img.alt = folder + ' proof ' + i;
+            img.loading = 'lazy';
+            item.appendChild(img);
+            item.addEventListener('click', function(){ openLightbox(src); });
+            container.appendChild(item);
+          }
+          if(checked === maxCount){ finalize(); }
+        });
+      })(i);
+    }
+  }
+  buildGallery('projectGallery', 'project', 6, 'Add images to images/project/ (e.g. project-1.png) to show screenshots here.');
+  buildGallery('trainingGallery', 'training', 8, 'Add images to images/training/ (e.g. training-1.jpg) to show photos here.');
+
+  var lightbox = document.getElementById('lightbox');
+  var lightboxImg = document.getElementById('lightboxImg');
+  function openLightbox(src){
+    lightboxImg.src = src;
+    lightbox.classList.add('open');
+  }
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+    lightboxImg.src = '';
+  }
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', function(e){ if(e.target === lightbox){ closeLightbox(); } });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeLightbox(); } });
 </script>
 
 </body>
