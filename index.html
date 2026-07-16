@@ -473,12 +473,15 @@
     transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
   }
   .cert-item:hover{ border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+  .cert-item.has-thumb{ cursor: pointer; }
   .cert-thumb{
-    width:34px; height:34px;
+    width:64px; height:48px;
     border-radius:6px;
     object-fit: cover;
+    object-position: center 35%;
     border: 1px solid var(--border);
     flex-shrink:0;
+    background: var(--bg-alt);
   }
   .cert-bullet{
     width:8px; height:8px;
@@ -1022,6 +1025,8 @@
         img.src = src;
         img.alt = key;
         bullet.replaceWith(img);
+        item.classList.add('has-thumb');
+        item.addEventListener('click', function(){ openLightbox(src); });
       }
     });
   });
@@ -1076,9 +1081,4 @@
     lightboxImg.src = '';
   }
   document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
-  lightbox.addEventListener('click', function(e){ if(e.target === lightbox){ closeLightbox(); } });
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeLightbox(); } });
-</script>
-
-</body>
-</html>
+  li
