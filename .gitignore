@@ -1,0 +1,17 @@
+tools/node_modules/
+tools/portfolio-reference.html
+.sites-runtime/
+.env
+*.zip
+data/
+backend/__pycache__/
+
+.vercel/
+.env.*
+*.sqlite3
+*.sqlite3-*
+*.db
+__pycache__/
+*.pyc
+node_modules/
+!.env.example
