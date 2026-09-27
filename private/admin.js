@@ -1,7 +1,10 @@
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'RM '+(Number(n)/100).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
-let session={},state={},projectList=[],view='overview',editing=null;
+let session={},state={},projectList=[],view='overview',editing=null,editorImages=[];
+function clearEditorImages(){editorImages.forEach(item=>{if(item.preview)URL.revokeObjectURL(item.preview);});editorImages=[];}
+$('editor').addEventListener('close',clearEditorImages);
+$('editor').addEventListener('cancel',event=>{if($('save').disabled)event.preventDefault();});
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Kuala_Lumpur'});
 $('year').value=new Date().getFullYear();
 async function api(path,options={}){
@@ -70,7 +73,7 @@ function openEditor(id){
  const titles={projects:'portfolio project',jobs:'client project',invoices:'invoice',payments:'payment',expenses:'expense'};
  $('editor-title').textContent=(id?'Edit ':'Add ')+titles[view];let html='';
  if(view==='projects'){
-  html=field('title','Project title *',r.title,'text','required maxlength="140"')+field('category','Category *',r.category||'Client work','text','required maxlength="60"')+area('summary','Short summary *',r.summary,'required maxlength="700"')+area('details','Project details',r.details,'maxlength="6000"')+field('tags','Tools / skills (comma separated)',r.tags,'text','maxlength="300"')+field('url','Live project link',r.url,'url','placeholder="https://" maxlength="1000"')+field('position','Display order',r.position||0,'number','min="0" max="999" required')+`<div class="field field-image"><label for="f-image-file">Project image (JPG, PNG, WebP; up to 3 MB)</label><input type="file" id="f-image-file" accept="image/jpeg,image/png,image/webp"><input type="hidden" name="image" id="f-image" value="${esc(r.image||'')}">${r.image?`<img src="${esc(r.image)}" alt="Current project image"><button type="button" id="remove-image" class="mini-button">Remove image</button>`:''}</div>`+`<div class="field full">${check('published','Show this project on the public portfolio',r.published)}<p class="help">Leave unchecked to keep it as a draft. Uploaded draft images are private until the project is published.</p></div>`;
+  html=field('title','Project title *',r.title,'text','required maxlength="140"')+field('category','Category *',r.category||'Client work','text','required maxlength="60"')+area('summary','Short summary *',r.summary,'required maxlength="700"')+area('details','Project details',r.details,'maxlength="6000"')+field('tags','Tools / skills (comma separated)',r.tags,'text','maxlength="300"')+field('url','Live project link',r.url,'url','placeholder="https://" maxlength="1000"')+field('position','Display order',r.position||0,'number','min="0" max="999" required')+`<div class="field full field-image"><label for="f-image-file">Project screenshots (up to 20; JPG, PNG, WebP; 3 MB each)</label><input type="file" id="f-image-file" accept="image/jpeg,image/png,image/webp" multiple><p class="help">The first screenshot is the project cover. Move images to change their order. Removing a screenshot removes it from this project after saving.</p><div id="editor-images" class="editor-images"></div></div>`+`<div class="field full">${check('published','Show this project on the public portfolio',r.published)}<p class="help">Leave unchecked to keep it as a draft. Uploaded draft images are private until the project is published.</p></div>`;
  }else if(view==='jobs'){
   html=field('name','Project name *',r.name,'text','required maxlength="160"')+field('client','Client name *',r.client,'text','required maxlength="160"')+field('fee','Agreed project fee (MYR) *',id?r.fee_cents/100:'','number','min="0" max="99999999.99" step="0.01" required')+select('status','Project status',[['active','Active'],['complete','Complete'],['cancelled','Cancelled']],r.status||'active')+area('notes','Scope / reference notes',r.notes,'maxlength="3000"');
  }else if(view==='invoices'){
@@ -82,8 +85,22 @@ function openEditor(id){
  }
  if(id&&['invoices','payments','expenses'].includes(view))html+=`<div class="field full">${check('void','Void this record (retain it, exclude from totals)',r.void)}</div>`;
  $('fields').innerHTML='<div class="two-fields">'+html+'</div>';
- $('remove-image')?.addEventListener('click',()=>{$('f-image').value='';$('fields').querySelector('.field-image img')?.remove();$('remove-image').remove();});
+ clearEditorImages();
+ if(view==='projects'){
+  editorImages=(r.screenshots?.length?r.screenshots:(r.image?[r.image]:[])).map(url=>({url}));renderEditorImages();
+  $('f-image-file').addEventListener('change',event=>{
+   const files=[...event.target.files];$('save-error').textContent='';
+   if(editorImages.length+files.length>20){$('save-error').textContent='Use up to 20 screenshots per project.';event.target.value='';return;}
+   if(files.some(file=>file.size>3*1024*1024||!['image/jpeg','image/png','image/webp'].includes(file.type))){$('save-error').textContent='Choose JPG, PNG or WebP images smaller than 3 MB each.';event.target.value='';return;}
+   files.forEach(file=>editorImages.push({file,preview:URL.createObjectURL(file)}));event.target.value='';renderEditorImages();
+  });
+ }
  $('editor').showModal();
+}
+function renderEditorImages(){
+ $('editor-images').innerHTML=editorImages.map((item,index)=>`<div class="editor-image"><img src="${esc(item.preview||item.url)}" alt="Screenshot ${index+1}"><span>${index===0?'Cover · ':''}Screenshot ${index+1}</span><div><button type="button" data-image-up="${index}" aria-label="Move screenshot ${index+1} earlier" ${index===0?'disabled':''}>↑</button><button type="button" data-image-down="${index}" aria-label="Move screenshot ${index+1} later" ${index===editorImages.length-1?'disabled':''}>↓</button><button type="button" data-image-remove="${index}" aria-label="Remove screenshot ${index+1}">Remove</button></div></div>`).join('')||'<p class="help">No screenshots yet. Add images above.</p>';
+ $('editor-images').querySelectorAll('[data-image-remove]').forEach(button=>button.addEventListener('click',()=>{const [item]=editorImages.splice(Number(button.dataset.imageRemove),1);if(item.preview)URL.revokeObjectURL(item.preview);renderEditorImages();}));
+ for(const [attribute,delta] of [['imageUp',-1],['imageDown',1]])$('editor-images').querySelectorAll(attribute==='imageUp'?'[data-image-up]':'[data-image-down]').forEach(button=>button.addEventListener('click',()=>{const i=Number(button.dataset[attribute]);[editorImages[i],editorImages[i+delta]]=[editorImages[i+delta],editorImages[i]];renderEditorImages();}));
 }
 function addDays(day,days){const d=new Date(day+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10);}
 function closeEditor(){if(!$('save').disabled)$('editor').close();}
@@ -93,11 +110,14 @@ $('edit-form').addEventListener('submit',async event=>{
  try{
   const data=Object.fromEntries(new FormData($('edit-form')));
   ['published','void'].forEach(key=>{if($(('f-'+key)))data[key]=$('f-'+key).checked?1:0;});
-  const file=$('f-image-file')?.files[0];
-  if(file){if(file.size>3*1024*1024)throw new Error('Choose an image smaller than 3 MB.');const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=()=>reject(new Error('Could not read the image.'));reader.readAsDataURL(file);});const upload=await api('/api/upload',{method:'POST',body:JSON.stringify({data:encoded})});data.image=upload.url;}
+  if(editing.entity==='projects'){
+   $('fields').querySelectorAll('button,input[type=file]').forEach(control=>control.disabled=true);
+   for(const item of editorImages){if(!item.file)continue;const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=()=>reject(new Error('Could not read the image.'));reader.readAsDataURL(item.file);});const upload=await api('/api/upload',{method:'POST',body:JSON.stringify({data:encoded})});item.url=upload.url;delete item.file;}
+   data.screenshots=editorImages.map(item=>item.url);data.image=data.screenshots[0]||'';
+  }
   await api('/api/'+editing.entity+(editing.id?'/'+editing.id:''),{method:editing.id?'PUT':'POST',body:JSON.stringify(data)});
   $('editor').close();notice(editing.entity==='projects'?'Project saved. Published changes appear when the portfolio is refreshed.':'Record saved. Totals and exports have been updated.');await refresh();
- }catch(e){$('save-error').textContent=e.message;}finally{$('save').disabled=false;}
+ }catch(e){$('save-error').textContent=e.message;}finally{$('save').disabled=false;if(editing?.entity==='projects'&&$('editor').open){renderEditorImages();$('f-image-file').disabled=false;}}
 });
 async function settings(){
  try{const activity=await api('/api/audit');if($('activity'))$('activity').innerHTML=activity.length?`<ul class="compact-list">${activity.map(a=>`<li><span>${esc(a.action)} · ${esc(a.entity)} #${a.entity_id}</span><small>${esc(a.recorded_at)} UTC</small></li>`).join('')}</ul>`:'<p class="subtle">Activity appears after you add or update a record.</p>';}catch(e){if($('activity'))$('activity').textContent=e.message;}

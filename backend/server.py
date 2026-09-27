@@ -26,6 +26,8 @@ def init():
     (DATA / 'uploads').mkdir(exist_ok=True)
     with db() as c:
         c.executescript((ROOT/'backend/schema.sql').read_text())
+        if 'screenshots' not in [r['name'] for r in c.execute('PRAGMA table_info(projects)')]:
+            c.execute("ALTER TABLE projects ADD COLUMN screenshots TEXT NOT NULL DEFAULT '[]'")
         if not c.execute("SELECT 1 FROM settings WHERE key='seeded'").fetchone():
             seed=json.loads((ROOT/'backend/seed.json').read_text(encoding='utf-8'))
             for p in seed['projects']:
@@ -35,6 +37,16 @@ def init():
         c.execute('DELETE FROM sessions WHERE expires<?',(int(time.time()),))
 
 def rows(c, sql, args=()): return [dict(r) for r in c.execute(sql,args)]
+
+def project_rows(c, public=False):
+    fields='id,title,category,summary,details,tags,url,image,screenshots,position' if public else '*'
+    items=rows(c,'SELECT '+fields+' FROM projects'+(' WHERE published=1' if public else '')+' ORDER BY position,id')
+    for item in items:
+        item['screenshots']=json.loads(item['screenshots'])
+    return items
+
+def published_image(c, path):
+    return any(path == p['image'] or path in p['screenshots'] for p in project_rows(c, public=True))
 def setting(c,key):
     r=c.execute('SELECT value FROM settings WHERE key=?',(key,)).fetchone()
     return r['value'] if r else None
@@ -68,6 +80,12 @@ def clean_project(d):
     if p['url'] and (urlsplit(p['url']).scheme not in ('http','https') or not urlsplit(p['url']).netloc): raise ValueError('Project link must be an http or https URL.')
     if p['image'] and not (re.fullmatch(r'/media/[a-f0-9]{32}\.(jpg|png|webp)',p['image']) or re.fullmatch(r'/assets/images/[a-zA-Z0-9_./-]+',p['image'])): raise ValueError('Upload an image or use an existing site asset.')
     if '..' in p['image']: raise ValueError('Invalid image path.')
+    screenshots=d.get('screenshots',[])
+    if not isinstance(screenshots,list) or len(screenshots)>20: raise ValueError('Use up to 20 screenshots per project.')
+    for path in screenshots:
+        if not isinstance(path,str) or len(path)>300 or '..' in path or not re.fullmatch(r'(?:/media/[a-f0-9]{32}\.(?:jpg|png|webp)|/assets/images/[a-zA-Z0-9_./-]+)',path):
+            raise ValueError('Upload screenshots or use existing site images.')
+    p['screenshots']=json.dumps(list(dict.fromkeys(screenshots)))
     p['published']=integer(d.get('published',0),0,1)
     p['position']=integer(d.get('position',0),0,999)
     return p
@@ -87,7 +105,7 @@ class Handler(BaseHTTPRequestHandler):
         route=urlsplit(self.path).path
         if route in ('/admin','/admin/','/admin.js','/admin.css') or (route.startswith('/api/') and not route.startswith('/api/public/')):
             self.send_header('X-Robots-Tag','noindex, nofollow')
-        self.send_header('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
+        self.send_header('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
         for k,v in (extra or {}).items():self.send_header(k,v)
         self.end_headers();self.wfile.write(body)
     def fail(self,status,message):self.send(status,{'error':message})
@@ -110,13 +128,13 @@ class Handler(BaseHTTPRequestHandler):
         try:
             with db() as c:
                 route=urlsplit(self.path).path
-                if route=='/api/public/projects':return self.send(200,rows(c,'SELECT id,title,category,summary,details,tags,url,image,position FROM projects WHERE published=1 ORDER BY position,id'))
+                if route=='/api/public/projects':return self.send(200,project_rows(c,public=True))
                 if route=='/api/session':
                     s=self.session(c)
                     return self.send(200,{'setup':not bool(setting(c,'password')),'authenticated':bool(s),'csrf':s['csrf'] if s else None})
                 if route.startswith('/api/'):
                     if not self.session(c):return self.fail(401,'Sign in to continue.')
-                    if route=='/api/projects':return self.send(200,rows(c,'SELECT * FROM projects ORDER BY position,id'))
+                    if route=='/api/projects':return self.send(200,project_rows(c))
                     if route=='/api/records':return self.send(200,self.records(c))
                     if route=='/api/audit':return self.send(200,rows(c,'SELECT id,recorded_at,action,entity,entity_id FROM audit ORDER BY id DESC LIMIT 100'))
                     if route=='/api/export':return self.export(c)
@@ -126,7 +144,7 @@ class Handler(BaseHTTPRequestHandler):
                     name=route.removeprefix('/media/')
                     if not re.fullmatch(r'[a-f0-9]{32}\.(jpg|png|webp)',name):return self.fail(404,'Not found.')
                     # A draft's image is private until at least one published project uses it.
-                    if not self.session(c) and not c.execute('SELECT 1 FROM projects WHERE image=? AND published=1',(route,)).fetchone():return self.fail(404,'Not found.')
+                    if not self.session(c) and not published_image(c,route):return self.fail(404,'Not found.')
                     return self.file(DATA/'uploads'/name)
                 if route in ('/admin','/admin/'):
                     return self.file(PRIVATE/'admin.html')
@@ -211,7 +229,10 @@ class Handler(BaseHTTPRequestHandler):
                 if (id_ is None and self.command!='POST') or (id_ is not None and self.command!='PUT'):return self.fail(405,'Use POST to create or PUT to update.')
                 before=dict(c.execute(f'SELECT * FROM {entity} WHERE id=?',(id_,)).fetchone() or {}) if id_ else None
                 if id_ and not before:return self.fail(404,'Record not found.')
-                if entity=='projects':record=clean_project(data)
+                if entity=='projects':
+                    # Older open admin tabs must not erase galleries when saving other fields.
+                    if before and 'screenshots' not in data:data['screenshots']=json.loads(before['screenshots'])
+                    record=clean_project(data)
                 elif entity=='jobs':
                     status=data.get('status','active')
                     if status not in ('active','complete','cancelled'):raise ValueError('Invalid project status.')

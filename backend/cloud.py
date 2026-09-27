@@ -139,7 +139,7 @@ class CloudHandler(local.Handler):
             if not re.fullmatch(r'[a-f0-9]{32}\.(jpg|png|webp)', name):
                 return self.fail(404, 'Not found.')
             with db() as c:
-                if not self.session(c) and not c.execute('SELECT 1 FROM projects WHERE published=1 AND image=?', (route,)).fetchone():
+                if not self.session(c) and not local.published_image(c, route):
                     return self.fail(404, 'Not found.')
             try:
                 signed = supabase('/storage/v1/object/sign/portfolio-images/' + name, 'POST', {'expiresIn': 60})
@@ -239,7 +239,7 @@ def security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     response.headers['Cache-Control'] = 'no-store'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.supabase.co; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
     if request.path.startswith('/admin') or (request.path.startswith('/api/') and not request.path.startswith('/api/public/')):
         response.headers['X-Robots-Tag'] = 'noindex, nofollow'
     return response

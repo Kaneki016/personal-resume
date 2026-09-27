@@ -20,7 +20,7 @@ Public portfolio, private portfolio editor and freelance bookkeeping. Public con
 
 ## Owner workflow
 
-Open `/admin` and sign in with the owner password. Add or edit portfolio entries, images (JPG/PNG/WebP up to 3 MB), sort order and published status. Draft images require sign-in.
+Open `/admin` and sign in with the owner password. Add or edit portfolio entries, images (JPG/PNG/WebP up to 3 MB), sort order and published status. Each project has its own gallery of up to 20 screenshots. Add several images at once, remove them or change their order; the first is the cover. Visitors open the gallery from that project’s card. Draft images require sign-in.
 
 Record agreed fees under Client projects, issued milestones under Invoices, and actual deposits/balances under Payments received. Record expenses with business-use percentages and original receipt references. Mark corrections void rather than deleting history. Keep original receipt files separately.
 

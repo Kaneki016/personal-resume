@@ -121,4 +121,32 @@ class CloudTests(unittest.TestCase):
         self.assertEqual(response.status_code,200)
         self.assertFalse(self.get('/api/session').json['authenticated'])
 
+    def test_project_galleries_and_private_screenshots(self):
+        csrf=self.login()
+        cover='/media/'+'a'*32+'.png'
+        second='/media/'+'b'*32+'.png'
+        draft={'title':'Gallery','category':'Client work','summary':'Two screenshots','image':cover,'screenshots':[cover,second], 'published':0}
+        ident=self.post('/api/projects',draft,csrf).json['id']
+        other=self.post('/api/projects',{'title':'Other','category':'Personal','summary':'Different project','screenshots':['/assets/images/project/project-1.jpg'],'published':1},csrf).json['id']
+        self.post('/api/logout',{},csrf)
+        self.assertEqual(self.get(second).status_code,404)
+        self.assertNotIn(ident,[p['id'] for p in self.get('/api/public/projects').json])
+        csrf=self.login()
+        draft['published']=1
+        self.assertEqual(self.post('/api/projects/'+str(ident),draft,csrf,method='PUT').status_code,200)
+        # Legacy clients omitting screenshots preserve the saved gallery.
+        del draft['screenshots']
+        self.assertEqual(self.post('/api/projects/'+str(ident),draft,csrf,method='PUT').status_code,200)
+        public={p['id']:p for p in self.get('/api/public/projects').json}
+        self.assertEqual(public[ident]['screenshots'],[cover,second])
+        self.assertEqual(public[other]['screenshots'],['/assets/images/project/project-1.jpg'])
+        for invalid in [['javascript:alert(1)'], ['/assets/images/../../.env'], 'not an array', [cover]*21]:
+            self.assertEqual(self.post('/api/projects/'+str(ident),{**draft,'screenshots':invalid},csrf,method='PUT').status_code,400)
+        self.post('/api/logout',{},csrf)
+        self.assertEqual(self.get(second).status_code,302)
+        csrf=self.login()
+        self.post('/api/projects/'+str(ident),{**draft,'published':0},csrf,method='PUT')
+        self.post('/api/logout',{},csrf)
+        self.assertEqual(self.get(second).status_code,404)
+
 if __name__ == '__main__': unittest.main()
