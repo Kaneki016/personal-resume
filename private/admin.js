@@ -25,8 +25,8 @@ async function enter(){$('auth').hidden=true;$('app').hidden=false;await refresh
 async function refresh(){
  try{[state,projectList]=await Promise.all([api('/api/records?year='+$('year').value),api('/api/projects')]);render();}catch(e){notice(e.message);}
 }
-$('logout').addEventListener('click',async()=>{try{await api('/api/logout',{method:'POST',body:'{}'});$('editor').close();state={};projectList=[];await boot();}catch(e){notice(e.message);}});
-document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>{view=button.dataset.view;render();}));
+$('logout').addEventListener('click',async()=>{if(window.SiteEditor&&!SiteEditor.canLeave())return;try{await api('/api/logout',{method:'POST',body:'{}'});$('editor').close();state={};projectList=[];await boot();}catch(e){notice(e.message);}});
+document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>{if(window.SiteEditor&&!SiteEditor.canLeave())return;view=button.dataset.view;render();}));
 $('year').addEventListener('change',()=>{if($('year').reportValidity())refresh();});
 const heading=(title,description,action='')=>`<div class="page-heading"><div><h1>${title}</h1><p>${description}</p></div>${action}</div>`;
 const addButton=(label)=>`<button class="primary" data-add>+ ${label}</button>`;
@@ -36,7 +36,9 @@ const editButton=id=>`<button class="mini-button" data-edit="${id}">Edit</button
 const inYear=(record,key='date')=>record[key].startsWith($('year').value+'-');
 function table(headers,rows){return `<div class="panel table-scroll"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;}
 function render(){
+ $('year').parentElement.hidden=view==='content';
  document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===view);b.setAttribute('aria-current',b.dataset.view===view?'page':'false');});
+ if(view==='content'){window.SiteEditor.open();return;}
  let html='';const s=state.summary;
  if(view==='overview'){
   html=heading('A little more organised.','Your portfolio and freelance business, in one place.')+`<div class="stats"><div class="stat"><span class="label">Payments received · ${state.year}</span><strong>${money(s.received)}</strong><small>By date received</small></div><div class="stat"><span class="label">Business expenses · ${state.year}</span><strong>${money(s.expenses)}</strong><small>Business portion of payments recorded</small></div><div class="stat"><span class="label">Net cash · ${state.year}</span><strong>${money(s.net_cash)}</strong><small>Received less recorded expenses</small></div><div class="stat"><span class="label">Outstanding · all invoices</span><strong>${money(s.outstanding)}</strong><small>Unpaid balance, as of now</small></div></div><div class="overview-grid"><section class="panel"><h2>Recent payments</h2>${state.payments.filter(p=>!p.void&&inYear(p)).length?`<ul class="compact-list">${state.payments.filter(p=>!p.void&&inYear(p)).slice(0,5).map(p=>`<li><div>${esc(p.client)}<small>${esc(p.number)} · ${esc(p.date)}</small></div><strong>${money(p.amount_cents)}</strong></li>`).join('')}</ul>`:empty('No payments recorded yet','Record a client project, add its invoice, then log the payments as they arrive.')}<p>Invoiced in ${state.year}: <strong>${money(s.invoiced)}</strong>. Overpayments across all invoices: <strong>${money(s.credit)}</strong>.</p></section><section class="panel"><h2>A simple way to keep records</h2><ol class="steps"><li>Add the client project and agreed total fee.</li><li>Record each invoice or milestone separately.</li><li>Log the actual deposit and balance payments.</li><li>Record expenses and keep their receipts.</li><li>Export records and download a backup regularly.</li></ol><p class="subtle">Net cash is a bookkeeping measure, not a calculation of taxable income. Invoice totals and received payments are tracked separately.</p></section></div>`;

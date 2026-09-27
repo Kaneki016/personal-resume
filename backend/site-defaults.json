@@ -1,0 +1,332 @@
+{
+  "profile": {
+    "name": "Lai Yoke Yau",
+    "initials": "LY",
+    "intro_label": "Freelance web developer · Malaysia",
+    "headline": "I build for\nthe real world.",
+    "introduction": "I’m a freelance web developer and Data Science graduate based in Malaysia, working with WordPress, Shopify and custom web development. This portfolio brings together my client work, personal projects and technical experience.",
+    "role": "Freelance web developer",
+    "location": "Kuala Lumpur, Malaysia",
+    "portrait": "/assets/images/profile.jpg",
+    "portrait_alt": "Lai Yoke Yau",
+    "seo_title": "Lai Yoke Yau — Freelance Web Developer",
+    "seo_description": "Lai Yoke Yau is a freelance web developer and Data Science graduate based in Malaysia. Explore WordPress, Shopify and custom web development projects."
+  },
+  "page": {
+    "nav_work": "Work",
+    "nav_about": "About",
+    "nav_connect": "Let’s connect ↗",
+    "primary_cta": "Explore my work ↓",
+    "secondary_cta": "Get in touch",
+    "projects_label": "01 / SELECTED WORK",
+    "projects_title": "Ideas, made tangible.",
+    "projects_intro": "Client work and personal experiments.\nA selection of what I’ve been building.",
+    "about_label": "02 / A LITTLE CONTEXT",
+    "background_label": "03 / BACKGROUND",
+    "experience_title": "Experience",
+    "education_title": "Education",
+    "awards_title": "Hackathon awards",
+    "skills_title": "Tools I work with.",
+    "certifications_title": "Certifications & learning",
+    "photos_title": "Training & hackathon photos",
+    "show_about": true,
+    "show_experience": true,
+    "show_education": true,
+    "show_awards": true,
+    "show_skills": true,
+    "show_certifications": true,
+    "show_photos": true
+  },
+  "highlights": [
+    {
+      "title": "Websites.",
+      "description": "WordPress & Shopify",
+      "visible": true
+    },
+    {
+      "title": "Applications.",
+      "description": "Custom tools & integrations",
+      "visible": true
+    },
+    {
+      "title": "Automation.",
+      "description": "Python & n8n",
+      "visible": true
+    }
+  ],
+  "about": {
+    "title": "Curious about how things work.\nMotivated to make them better.",
+    "body": "I’m a fresh graduate from TAR UMT with two freelance web development projects completed. I focus on WordPress and Shopify, with custom development for projects that need a tailored approach.\nMy experience spans product development, e-commerce integrations, AI training, and ERP implementation support. I enjoy connecting technical work with the people and processes it serves."
+  },
+  "facts": [
+    {
+      "title": "Data Science",
+      "description": "TAR UMT",
+      "visible": true
+    },
+    {
+      "title": "2 projects",
+      "description": "Freelance web development",
+      "visible": true
+    }
+  ],
+  "contact": {
+    "title": "Let’s connect.",
+    "description": "Thanks for exploring my work. You can find me here.",
+    "email": "laiyokeyau@gmail.com",
+    "whatsapp": "+60 18-382 2330",
+    "linkedin": "https://www.linkedin.com/in/yoke-yau-lai",
+    "linkedin_label": "Lai Yoke Yau"
+  },
+  "experience": [
+    {
+      "title": "Product Developer",
+      "company": "Super Products",
+      "period": "Jan 2026 – Present",
+      "location": "Kuala Lumpur, Malaysia",
+      "details": "Developed the SuperHomes.my website using Claude Code; set up and maintained the hosting server.\nHelped debug and implement features in SuperAgentK, including multiple mini-apps within the product.",
+      "visible": true
+    },
+    {
+      "title": "AI Training Facilitator",
+      "company": "AITraining2U PLT",
+      "period": "Jan 2026 – Present",
+      "location": "Kuala Lumpur, Malaysia",
+      "details": "Conducted and facilitated AI training sessions for corporate clients, providing logistics and technical support during sessions.\nShared practical experience using AI and n8n in daily workflows such as product development, helping attendees apply AI tools effectively.",
+      "visible": true
+    },
+    {
+      "title": "Implementation Consultant",
+      "company": "YonYou Malaysia Sdn Bhd",
+      "period": "Nov 2023 – Jan 2024",
+      "location": "Kuala Lumpur, Malaysia",
+      "details": "Delivered customer service and after-sales support, providing solutions based on issues clients faced using the product.\nSummarized meeting minutes to conclude requirements gathered from clients.",
+      "visible": true
+    },
+    {
+      "title": "Technical Support",
+      "company": "Greenomic Commerce Sdn Bhd",
+      "period": "Jan 2021 – Present",
+      "location": "Ampang, Selangor, Malaysia",
+      "details": "Listed and maintained product entries across e-commerce platforms including Lazada and Shopee, ensuring accurate and up-to-date catalogs.\nProduced product images and video edits to support listing quality, gaining hands-on exposure to end-to-end e-commerce operations.\nProvided technical support on the Gundam.my e-commerce website, including API integrations across Shopee, Lazada, and TikTok.\nIntegrated payment gateway APIs, including iPay88 and gKash, into the Gundam.my e-commerce website.\nFixed bugs on the live site and implemented e-invoice features to support compliance and order processing.",
+      "visible": true
+    }
+  ],
+  "education": [
+    {
+      "title": "Degree in Data Science",
+      "school": "Tunku Abdul Rahman University of Management and Technology",
+      "period": "Data Science graduate",
+      "details": "CGPA: 3.77 · Dean's List: 2 semesters · President's List: 1 semester\nDevMatch Hackathon, The 2025 Great Malaysia AI Hackathon, Cursor Hackathon\nFirst Runner-Up — ISEK.AI ACG Hackathon (2025)\n2nd Runner-Up — NextUp Hackathon (2025)",
+      "visible": true
+    },
+    {
+      "title": "Diploma in Computer Science",
+      "school": "Tunku Abdul Rahman University of Management and Technology",
+      "period": "2022 – 2024",
+      "details": "CGPA: 3.8704\nGold Award, Soft Skills Competency Certificate (whole Diploma)\nOrganised Peer Support Society's Fund Raising (2022) & Diabolo Festival (2023)",
+      "visible": true
+    },
+    {
+      "title": "SMK Taman Seraya",
+      "school": "",
+      "period": "2016 – 2022",
+      "details": "SPM Result: 1A+ 3A 1A- 4B+ 1C+",
+      "visible": true
+    }
+  ],
+  "awards": [
+    {
+      "title": "1ST RUNNER-UP",
+      "description": "ISEK.AI ACG Hackathon · 2025",
+      "visible": true
+    },
+    {
+      "title": "2ND RUNNER-UP",
+      "description": "NextUp Hackathon · 2025",
+      "visible": true
+    }
+  ],
+  "skills": [
+    {
+      "title": "Programming",
+      "items": "Python\nJava\nJavaScript\nC\nSQL\nHTML/CSS",
+      "visible": true
+    },
+    {
+      "title": "Data & Cloud",
+      "items": "Pandas\nNumPy\nAWS Cloud\nExcel",
+      "visible": true
+    },
+    {
+      "title": "AI & Automation",
+      "items": "Claude Code\nMCP\nAI Fluency\nn8n\nVibe Coding",
+      "visible": true
+    },
+    {
+      "title": "Frameworks & Tools",
+      "items": "WordPress\nShopify\nReact.js\nFastAPI\nStreamlit\nGit\nJupyter",
+      "visible": true
+    }
+  ],
+  "certifications": [
+    {
+      "title": "Cloud Foundations, Training Badge",
+      "issuer": "AWS Academy",
+      "link": "",
+      "visible": true
+    },
+    {
+      "title": "Soft Skills Competency, Gold Award",
+      "issuer": "TAR UMT",
+      "link": "",
+      "visible": true
+    },
+    {
+      "title": "MUET, Band 4",
+      "issuer": "TAR UMT",
+      "link": "",
+      "visible": true
+    },
+    {
+      "title": "Introduction to Model Context Protocol",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/mcp.png",
+      "visible": true
+    },
+    {
+      "title": "Model Context Protocol: Advanced Topics",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/mcp-advanced.jpg",
+      "visible": true
+    },
+    {
+      "title": "AI Fluency for Students",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/ai-fluency.jpg",
+      "visible": true
+    },
+    {
+      "title": "AI Fluency for Educators",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/ai-fluency-educators.jpg",
+      "visible": true
+    },
+    {
+      "title": "AI Fluency: Framework & Foundations",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/ai-fluency-framework.jpg",
+      "visible": true
+    },
+    {
+      "title": "Claude 101",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/claude-101.jpg",
+      "visible": true
+    },
+    {
+      "title": "Claude Platform 101",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/claude-platform-101.png",
+      "visible": true
+    },
+    {
+      "title": "Claude Code 101",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/claude-code-101.png",
+      "visible": true
+    },
+    {
+      "title": "Claude Code in Action",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/claude-code.png",
+      "visible": true
+    },
+    {
+      "title": "Introduction to Claude Cowork",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/claude-cowork.jpg",
+      "visible": true
+    },
+    {
+      "title": "Claude with the Anthropic API",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/claude-api.png",
+      "visible": true
+    },
+    {
+      "title": "Claude with Amazon Bedrock",
+      "issuer": "Anthropic",
+      "link": "/assets/images/certs/claude-bedrock.png",
+      "visible": true
+    },
+    {
+      "title": "Professional AI Engineering — AI Agentic Automation via n8n",
+      "issuer": "Elead × Supern8n",
+      "link": "/assets/images/certs/n8n-automation.png",
+      "visible": true
+    },
+    {
+      "title": "Professional AI Engineering — Vibe Coding",
+      "issuer": "Elead × Supern8n",
+      "link": "/assets/images/certs/vibe-coding.jpg",
+      "visible": true
+    }
+  ],
+  "photos": [
+    {
+      "title": "Training & work, image 1",
+      "group": "Training & work",
+      "image": "/assets/images/training/training-1.jpg",
+      "visible": true
+    },
+    {
+      "title": "Training & work, image 2",
+      "group": "Training & work",
+      "image": "/assets/images/training/training-2.jpg",
+      "visible": true
+    },
+    {
+      "title": "Training & work, image 3",
+      "group": "Training & work",
+      "image": "/assets/images/training/training-3.jpg",
+      "visible": true
+    },
+    {
+      "title": "Hackathons, image 1",
+      "group": "Hackathons",
+      "image": "/assets/images/hackathon/hackathon-1.jpg",
+      "visible": true
+    },
+    {
+      "title": "Hackathons, image 2",
+      "group": "Hackathons",
+      "image": "/assets/images/hackathon/hackathon-2.jpg",
+      "visible": true
+    },
+    {
+      "title": "Hackathons, image 3",
+      "group": "Hackathons",
+      "image": "/assets/images/hackathon/hackathon-3.jpg",
+      "visible": true
+    },
+    {
+      "title": "Hackathons, image 4",
+      "group": "Hackathons",
+      "image": "/assets/images/hackathon/hackathon-4.jpg",
+      "visible": true
+    },
+    {
+      "title": "Hackathons, image 5",
+      "group": "Hackathons",
+      "image": "/assets/images/hackathon/hackathon-5.jpg",
+      "visible": true
+    },
+    {
+      "title": "Hackathons, image 6",
+      "group": "Hackathons",
+      "image": "/assets/images/hackathon/hackathon-6.jpg",
+      "visible": true
+    }
+  ]
+}

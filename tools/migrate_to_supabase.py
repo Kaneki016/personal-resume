@@ -8,7 +8,7 @@ from pathlib import Path
 import psycopg
 from psycopg import sql
 
-TABLES = ('projects', 'jobs', 'invoices', 'payments', 'expenses', 'audit')
+TABLES = ('projects', 'jobs', 'invoices', 'payments', 'expenses', 'audit', 'site_content')
 
 def main():
     parser = argparse.ArgumentParser()
@@ -17,7 +17,8 @@ def main():
     source = Path(args.sqlite).resolve()
     with sqlite3.connect(f'{source.as_uri()}?mode=ro', uri=True) as db:
         db.row_factory = sqlite3.Row
-        records = {table: [dict(row) for row in db.execute('SELECT * FROM '+table+' ORDER BY id')] for table in TABLES}
+        existing={row['name'] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        records = {table: [dict(row) for row in db.execute('SELECT * FROM '+table+' ORDER BY id')] if table in existing else [] for table in TABLES}
     with psycopg.connect(os.environ['DATABASE_URL'], prepare_threshold=None) as db:
         db.execute("SET LOCAL search_path TO portfolio")
         db.execute('SELECT pg_advisory_xact_lock(271827182)')
@@ -31,7 +32,8 @@ def main():
                     sql.Identifier(table), sql.SQL(',').join(map(sql.Identifier,row)),
                     sql.SQL(',').join(sql.Placeholder() for _ in row))
                 db.execute(statement, list(row.values()))
-            db.execute("SELECT setval(pg_get_serial_sequence(%s,'id'),COALESCE((SELECT MAX(id) FROM "+table+"),1),EXISTS(SELECT 1 FROM "+table+"))", ('portfolio.'+table,))
+            if table!='site_content':
+                db.execute("SELECT setval(pg_get_serial_sequence(%s,'id'),COALESCE((SELECT MAX(id) FROM "+table+"),1),EXISTS(SELECT 1 FROM "+table+"))", ('portfolio.'+table,))
     print('Imported records:', json.dumps({table: len(rows) for table,rows in records.items()}))
     print('Account passwords and sessions were not copied. Upload data/uploads to the private portfolio-images bucket separately, keeping filenames.')
 

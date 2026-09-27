@@ -149,4 +149,52 @@ class CloudTests(unittest.TestCase):
         self.post('/api/logout',{},csrf)
         self.assertEqual(self.get(second).status_code,404)
 
+    def test_site_content_permissions_revisions_and_rendering(self):
+        self.assertEqual(self.get('/api/site-content').status_code,401)
+        self.assertEqual(self.post('/api/site-content/profile',{},method='PUT').status_code,401)
+        csrf=self.login()
+        content=self.get('/api/site-content').json
+        profile=content['sections']['profile']
+        profile.update(name='Updated Owner',headline='A new headline',seo_title='Updated SEO <script>unsafe</script>')
+        body={'content':profile,'revision':content['revisions']['profile']}
+        self.assertEqual(self.post('/api/site-content/profile',body,method='PUT').status_code,403)
+        saved=self.post('/api/site-content/profile',body,csrf,method='PUT')
+        self.assertEqual(saved.status_code,200)
+        self.assertEqual(self.post('/api/site-content/profile',body,csrf,method='PUT').status_code,409)
+        html=self.get('/').data.decode()
+        self.assertIn('Updated Owner',html)
+        self.assertIn('A new headline',html)
+        self.assertIn('&lt;script&gt;unsafe&lt;/script&gt;',html)
+        self.assertNotIn('<script>unsafe</script>',html)
+        self.assertIn('site_content',self.get('/api/backup').json['tables'])
+        self.assertIn('site_content',[a['entity'] for a in self.get('/api/audit').json])
+
+    def test_site_collections_visibility_and_image_access(self):
+        csrf=self.login()
+        path='/media/'+'c'*32+'.png'
+        photos=[{'title':'Private event','group':'Events','image':path,'visible':False}]
+        response=self.post('/api/site-content/photos',{'revision':0,'content':photos},csrf,method='PUT')
+        self.assertEqual(response.status_code,200)
+        self.post('/api/logout',{},csrf)
+        self.assertEqual(self.get(path).status_code,404)
+        self.assertNotIn('Private event',self.get('/').data.decode())
+        csrf=self.login();photos[0]['visible']=True
+        self.assertEqual(self.post('/api/site-content/photos',{'revision':1,'content':photos},csrf,method='PUT').status_code,200)
+        self.post('/api/logout',{},csrf)
+        self.assertEqual(self.get(path).status_code,302)
+        self.assertIn('Private event',self.get('/').data.decode())
+        csrf=self.login();page=self.get('/api/site-content').json['sections']['page'];page['show_photos']=False
+        self.post('/api/site-content/page',{'revision':0,'content':page},csrf,method='PUT')
+        self.post('/api/logout',{},csrf)
+        self.assertEqual(self.get(path).status_code,404)
+
+    def test_site_content_rejects_unsafe_links_and_oversize_lists(self):
+        csrf=self.login()
+        contact=self.get('/api/site-content').json['sections']['contact']
+        for url in ['javascript:alert(1)','data:text/html,test','//attacker.example','https://user:pass@example.com']:
+            response=self.post('/api/site-content/contact',{'revision':0,'content':{**contact,'linkedin':url}},csrf,method='PUT')
+            self.assertEqual(response.status_code,400)
+        self.assertEqual(self.post('/api/site-content/photos',{'revision':0,'content':[{}]*81},csrf,method='PUT').status_code,400)
+        self.assertEqual(self.post('/api/site-content/unknown',{'revision':0,'content':{}},csrf,method='PUT').status_code,404)
+
 if __name__ == '__main__': unittest.main()

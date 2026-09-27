@@ -1,4 +1,4 @@
-"""Local, single-owner portfolio and bookkeeping server. Python 3.10+, no packages required."""
+"""Local single-owner portfolio and bookkeeping server with shared content templates."""
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from http.cookies import SimpleCookie
 from pathlib import Path
@@ -6,6 +6,10 @@ from urllib.parse import urlsplit, parse_qs, unquote
 from decimal import Decimal, InvalidOperation
 from datetime import date
 import argparse, base64, csv, hashlib, hmac, io, json, mimetypes, os, re, secrets, sqlite3, time, threading, zipfile
+if __package__:
+    from . import content
+else:
+    import content
 
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / 'dist'
@@ -28,6 +32,8 @@ def init():
         c.executescript((ROOT/'backend/schema.sql').read_text())
         if 'screenshots' not in [r['name'] for r in c.execute('PRAGMA table_info(projects)')]:
             c.execute("ALTER TABLE projects ADD COLUMN screenshots TEXT NOT NULL DEFAULT '[]'")
+        for key,value in content.DEFAULTS.items():
+            c.execute('INSERT INTO site_content(id,body,revision) VALUES(?,?,1) ON CONFLICT(id) DO NOTHING',(key,json.dumps(value,ensure_ascii=False)))
         if not c.execute("SELECT 1 FROM settings WHERE key='seeded'").fetchone():
             seed=json.loads((ROOT/'backend/seed.json').read_text(encoding='utf-8'))
             for p in seed['projects']:
@@ -46,7 +52,7 @@ def project_rows(c, public=False):
     return items
 
 def published_image(c, path):
-    return any(path == p['image'] or path in p['screenshots'] for p in project_rows(c, public=True))
+    return any(path == p['image'] or path in p['screenshots'] for p in project_rows(c, public=True)) or content.public_image(c,path)
 def setting(c,key):
     r=c.execute('SELECT value FROM settings WHERE key=?',(key,)).fetchone()
     return r['value'] if r else None
@@ -128,6 +134,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             with db() as c:
                 route=urlsplit(self.path).path
+                if route in ('/','/index.html'):return self.send(200,content.render(c).encode('utf-8'),'text/html; charset=utf-8')
                 if route=='/api/public/projects':return self.send(200,project_rows(c,public=True))
                 if route=='/api/session':
                     s=self.session(c)
@@ -135,6 +142,7 @@ class Handler(BaseHTTPRequestHandler):
                 if route.startswith('/api/'):
                     if not self.session(c):return self.fail(401,'Sign in to continue.')
                     if route=='/api/projects':return self.send(200,project_rows(c))
+                    if route=='/api/site-content':return self.send(200,content.read(c))
                     if route=='/api/records':return self.send(200,self.records(c))
                     if route=='/api/audit':return self.send(200,rows(c,'SELECT id,recorded_at,action,entity,entity_id FROM audit ORDER BY id DESC LIMIT 100'))
                     if route=='/api/export':return self.export(c)
@@ -148,7 +156,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self.file(DATA/'uploads'/name)
                 if route in ('/admin','/admin/'):
                     return self.file(PRIVATE/'admin.html')
-                if route in ('/admin.js','/admin.css'):return self.file(PRIVATE/route[1:])
+                if route in ('/admin.js','/admin.css','/site-editor.js'):return self.file(PRIVATE/route[1:])
                 route='/index.html' if route=='/' else unquote(route)
                 path=(PUBLIC/route.lstrip('/')).resolve()
                 if not path.is_relative_to(PUBLIC.resolve()) or any(part.startswith('.') for part in path.relative_to(PUBLIC.resolve()).parts):return self.fail(404,'Not found.')
@@ -223,6 +231,18 @@ class Handler(BaseHTTPRequestHandler):
                     if not self.password_matches(c,data.get('current','')):return self.fail(400,'Current password is incorrect.')
                     self.set_password(c,data.get('password'));c.execute('DELETE FROM sessions');c.commit();return self.send(200,{'ok':True})
                 if route=='/api/upload':return self.upload(data)
+                if route.startswith('/api/site-content/'):
+                    if self.command!='PUT':return self.fail(405,'Use PUT to update website content.')
+                    key=route.removeprefix('/api/site-content/')
+                    if key not in content.SCHEMA:return self.fail(404,'Section not found.')
+                    revision=integer(data.get('revision'),0)
+                    row=c.execute('SELECT body,revision FROM site_content WHERE id=?',(key,)).fetchone()
+                    if revision!=(row['revision'] if row else 0):return self.fail(409,'This section changed in another tab. Reload the section before saving again.')
+                    cleaned=content.clean(key,data.get('content'))
+                    before=json.loads(row['body']) if row else content.DEFAULTS[key]
+                    c.execute('INSERT INTO site_content(id,body,revision) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body,revision=excluded.revision',(key,json.dumps(cleaned,ensure_ascii=False),revision+1))
+                    audit(c,'update','site_content',None,{key:before},{key:cleaned});c.commit()
+                    return self.send(200,{'revision':revision+1,'content':cleaned})
                 match=re.fullmatch(r'/api/(projects|jobs|invoices|payments|expenses)(?:/(\d+))?',route)
                 if not match:return self.fail(404,'Not found.')
                 entity,id_=match.groups();id_=int(id_) if id_ else None

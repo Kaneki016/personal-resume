@@ -1,0 +1,597 @@
+{
+  "profile": {
+    "label": "Profile & introduction",
+    "collection": false,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "name",
+        "label": "Your name",
+        "type": "text",
+        "required": true,
+        "max": 140
+      },
+      {
+        "key": "initials",
+        "label": "Logo initials",
+        "type": "text",
+        "required": true,
+        "max": 5
+      },
+      {
+        "key": "intro_label",
+        "label": "Introductory label",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "headline",
+        "label": "Main headline (line breaks supported)",
+        "type": "textarea",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "introduction",
+        "label": "Introduction",
+        "type": "textarea",
+        "required": true,
+        "max": 3000
+      },
+      {
+        "key": "role",
+        "label": "Role / job title",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "location",
+        "label": "Location",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "portrait",
+        "label": "Profile photo",
+        "type": "image",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "portrait_alt",
+        "label": "Photo description",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "seo_title",
+        "label": "Search engine page title",
+        "type": "text",
+        "required": true,
+        "max": 160
+      },
+      {
+        "key": "seo_description",
+        "label": "Search engine description",
+        "type": "textarea",
+        "required": true,
+        "max": 320
+      }
+    ]
+  },
+  "page": {
+    "label": "Page headings & visibility",
+    "collection": false,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "nav_work",
+        "label": "Nav work",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "nav_about",
+        "label": "Nav about",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "nav_connect",
+        "label": "Nav connect",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "primary_cta",
+        "label": "Primary cta",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "secondary_cta",
+        "label": "Secondary cta",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "projects_label",
+        "label": "Projects label",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "projects_title",
+        "label": "Projects title",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "projects_intro",
+        "label": "Projects intro",
+        "type": "textarea",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "about_label",
+        "label": "About label",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "background_label",
+        "label": "Background label",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "experience_title",
+        "label": "Experience title",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "education_title",
+        "label": "Education title",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "awards_title",
+        "label": "Awards title",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "skills_title",
+        "label": "Skills title",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "certifications_title",
+        "label": "Certifications title",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "photos_title",
+        "label": "Photos title",
+        "type": "text",
+        "required": true,
+        "max": 800
+      },
+      {
+        "key": "show_about",
+        "label": "Show about",
+        "type": "checkbox",
+        "required": false,
+        "max": 800
+      },
+      {
+        "key": "show_experience",
+        "label": "Show experience",
+        "type": "checkbox",
+        "required": false,
+        "max": 800
+      },
+      {
+        "key": "show_education",
+        "label": "Show education",
+        "type": "checkbox",
+        "required": false,
+        "max": 800
+      },
+      {
+        "key": "show_awards",
+        "label": "Show awards",
+        "type": "checkbox",
+        "required": false,
+        "max": 800
+      },
+      {
+        "key": "show_skills",
+        "label": "Show skills",
+        "type": "checkbox",
+        "required": false,
+        "max": 800
+      },
+      {
+        "key": "show_certifications",
+        "label": "Show certifications",
+        "type": "checkbox",
+        "required": false,
+        "max": 800
+      },
+      {
+        "key": "show_photos",
+        "label": "Show photos",
+        "type": "checkbox",
+        "required": false,
+        "max": 800
+      }
+    ]
+  },
+  "highlights": {
+    "label": "Areas of work",
+    "collection": true,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Heading",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "description",
+        "label": "Description",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "visible",
+        "label": "Show publicly",
+        "type": "checkbox",
+        "required": false,
+        "max": 500
+      }
+    ]
+  },
+  "about": {
+    "label": "About me",
+    "collection": false,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Section headline",
+        "type": "textarea",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "body",
+        "label": "About text (one paragraph per line)",
+        "type": "textarea",
+        "required": true,
+        "max": 6000
+      }
+    ]
+  },
+  "facts": {
+    "label": "About highlights",
+    "collection": true,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Highlight",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "description",
+        "label": "Supporting label",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "visible",
+        "label": "Show publicly",
+        "type": "checkbox",
+        "required": false,
+        "max": 500
+      }
+    ]
+  },
+  "contact": {
+    "label": "Contact details",
+    "collection": false,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Section heading",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "description",
+        "label": "Contact introduction",
+        "type": "textarea",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "email",
+        "label": "Public email",
+        "type": "email",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "whatsapp",
+        "label": "WhatsApp number (with country code)",
+        "type": "phone",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "linkedin",
+        "label": "LinkedIn URL",
+        "type": "url",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "linkedin_label",
+        "label": "LinkedIn display name",
+        "type": "text",
+        "required": false,
+        "max": 500
+      }
+    ]
+  },
+  "experience": {
+    "label": "Experience",
+    "collection": true,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Job title",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "company",
+        "label": "Company",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "period",
+        "label": "Dates / period",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "location",
+        "label": "Location",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "details",
+        "label": "Responsibilities (one bullet per line)",
+        "type": "textarea",
+        "required": false,
+        "max": 6000
+      },
+      {
+        "key": "visible",
+        "label": "Show publicly",
+        "type": "checkbox",
+        "required": false,
+        "max": 500
+      }
+    ]
+  },
+  "education": {
+    "label": "Education",
+    "collection": true,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Qualification / school",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "school",
+        "label": "Institution",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "period",
+        "label": "Dates / status",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "details",
+        "label": "Achievements (one bullet per line)",
+        "type": "textarea",
+        "required": false,
+        "max": 6000
+      },
+      {
+        "key": "visible",
+        "label": "Show publicly",
+        "type": "checkbox",
+        "required": false,
+        "max": 500
+      }
+    ]
+  },
+  "awards": {
+    "label": "Awards",
+    "collection": true,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Award",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "description",
+        "label": "Event / year",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "visible",
+        "label": "Show publicly",
+        "type": "checkbox",
+        "required": false,
+        "max": 500
+      }
+    ]
+  },
+  "skills": {
+    "label": "Skills",
+    "collection": true,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Skill group",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "items",
+        "label": "Skills (one per line)",
+        "type": "textarea",
+        "required": true,
+        "max": 3000
+      },
+      {
+        "key": "visible",
+        "label": "Show publicly",
+        "type": "checkbox",
+        "required": false,
+        "max": 500
+      }
+    ]
+  },
+  "certifications": {
+    "label": "Certifications",
+    "collection": true,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Certificate / qualification",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "issuer",
+        "label": "Issuer",
+        "type": "text",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "link",
+        "label": "Certificate image or verification URL",
+        "type": "asset",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "visible",
+        "label": "Show publicly",
+        "type": "checkbox",
+        "required": false,
+        "max": 500
+      }
+    ]
+  },
+  "photos": {
+    "label": "Photo galleries",
+    "collection": true,
+    "max_items": 80,
+    "fields": [
+      {
+        "key": "title",
+        "label": "Photo description",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "group",
+        "label": "Gallery name (e.g. Training & work)",
+        "type": "text",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "image",
+        "label": "Photo",
+        "type": "image",
+        "required": true,
+        "max": 500
+      },
+      {
+        "key": "visible",
+        "label": "Show publicly",
+        "type": "checkbox",
+        "required": false,
+        "max": 500
+      }
+    ]
+  }
+}

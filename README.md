@@ -20,6 +20,10 @@ Public portfolio, private portfolio editor and freelance bookkeeping. Public con
 
 ## Owner workflow
 
+Use **Website content** to edit the profile, introduction, contact details, page headings, section visibility, about text, experience, education, awards, skills, certifications and photo galleries. Choose a section, edit its fields, then **Save & publish**. List entries can be added, removed, reordered or hidden. Image fields support uploads; certificate fields also accept verification links. Public contact details do not change the private owner login.
+
+Content is stored in Supabase and rendered into the public HTML on every request, including the page title and description. Routine edits need no deployment. Conflicting edits from another tab are rejected without overwriting them. Saved edits appear in the activity log and `site_content` is included in records backups. Deploying this feature requires `supabase/migrations/20260928_site_content.sql`, which preserves any existing content.
+
 Open `/admin` and sign in with the owner password. Add or edit portfolio entries, images (JPG/PNG/WebP up to 3 MB), sort order and published status. Each project has its own gallery of up to 20 screenshots. Add several images at once, remove them or change their order; the first is the cover. Visitors open the gallery from that project’s card. Draft images require sign-in.
 
 Record agreed fees under Client projects, issued milestones under Invoices, and actual deposits/balances under Payments received. Record expenses with business-use percentages and original receipt references. Mark corrections void rather than deleting history. Keep original receipt files separately.

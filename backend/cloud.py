@@ -21,7 +21,7 @@ from flask import Flask, Response, redirect, request, send_file
 from werkzeug.exceptions import RequestEntityTooLarge
 from backend import server as local
 
-TABLES = ('projects', 'jobs', 'invoices', 'payments', 'expenses', 'audit')
+TABLES = ('projects', 'jobs', 'invoices', 'payments', 'expenses', 'audit', 'site_content')
 
 def required(name):
     value = os.environ.get(name, '').strip()
@@ -251,9 +251,12 @@ def dispatch(path):
         if request.host == 'lai-yoke-yau-resume.vercel.app':
             return redirect(required('APP_ORIGIN').rstrip('/') + request.full_path.rstrip('?'), code=308)
         if request.method == 'GET' and not path.startswith(('api/', 'media/')):
+            if path in ('','index.html'):
+                with db() as c:
+                    return Response(local.content.render(c),content_type='text/html; charset=utf-8')
             if path in ('admin', 'admin/'):
                 return send_file(local.PRIVATE / 'admin.html')
-            if path in ('admin.js', 'admin.css'):
+            if path in ('admin.js', 'admin.css', 'site-editor.js'):
                 return send_file(local.PRIVATE / path)
             target = (local.PUBLIC / (path or 'index.html')).resolve()
             if not target.is_relative_to(local.PUBLIC.resolve()) or any(part.startswith('.') for part in target.relative_to(local.PUBLIC.resolve()).parts) or not target.is_file():
