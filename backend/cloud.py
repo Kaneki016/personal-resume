@@ -17,7 +17,7 @@ from urllib.request import Request, urlopen
 
 import psycopg
 from psycopg.rows import dict_row
-from flask import Flask, Response, request, send_file
+from flask import Flask, Response, redirect, request, send_file
 from werkzeug.exceptions import RequestEntityTooLarge
 from backend import server as local
 
@@ -248,6 +248,8 @@ def security_headers(response):
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT'])
 def dispatch(path):
     try:
+        if request.host == 'lai-yoke-yau-resume.vercel.app':
+            return redirect(required('APP_ORIGIN').rstrip('/') + request.full_path.rstrip('?'), code=308)
         if request.method == 'GET' and not path.startswith(('api/', 'media/')):
             if path in ('admin', 'admin/'):
                 return send_file(local.PRIVATE / 'admin.html')

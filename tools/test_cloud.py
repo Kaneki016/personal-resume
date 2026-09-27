@@ -63,6 +63,9 @@ class CloudTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         return response.json['csrf']
     def test_public_and_admin_indexing(self):
+        legacy = self.client.get('/?from=resume', base_url='https://lai-yoke-yau-resume.vercel.app')
+        self.assertEqual(legacy.status_code, 308)
+        self.assertEqual(legacy.headers['Location'], self.origin + '/?from=resume')
         response = self.get('/')
         self.assertEqual(response.status_code,200)
         self.assertNotIn('X-Robots-Tag', response.headers)
