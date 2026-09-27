@@ -10,6 +10,7 @@ import secrets
 import sqlite3
 import time
 from contextlib import contextmanager
+from decimal import Decimal
 from urllib.error import HTTPError
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
@@ -29,6 +30,10 @@ def required(name):
     return value
 
 class Row(dict):
+    def __init__(self, values):
+        # PostgreSQL SUM(bigint) is numeric. Preserve exact integer sen in JSON.
+        super().__init__({key: int(value) if isinstance(value, Decimal) and value == value.to_integral_value() else value
+                          for key, value in values.items()})
     def __getitem__(self, key):
         return list(self.values())[key] if isinstance(key, int) else super().__getitem__(key)
 

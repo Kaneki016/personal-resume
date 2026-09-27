@@ -14,7 +14,7 @@ Public portfolio, private portfolio editor and freelance bookkeeping. Public con
 1. Create a free Supabase project in Singapore. Disable automatic table exposure and enable automatic RLS.
 2. Run `supabase/schema.sql` in its SQL editor. App tables live in the unexposed `portfolio` schema; anonymous and authenticated API roles have no grants or policies on them.
 3. Create the owner's confirmed Supabase Auth user using their email and a strong password. Disable public sign-ups in Supabase Auth.
-4. Set the variables from `.env.example` in Vercel. Use the **transaction pooler** connection string with `sslmode=require`. URL-encode special characters in its password. Keep the service-role key server-side.
+4. Create a private `portfolio_app` database login with a generated password and run `supabase/app-role.sql`. It grants access only to the app schema and its tables. Set the variables from `.env.example` in Vercel. Use this login with the **transaction pooler** connection string and `sslmode=require`. URL-encode special characters in its password. Keep the service-role key server-side.
 5. Import the local SQLite snapshot with `python tools/migrate_to_supabase.py --sqlite /path/to/portfolio.sqlite3` in an environment containing `DATABASE_URL`. This refuses to overwrite an occupied destination and excludes local credentials/sessions. Import images separately into the private bucket with unchanged filenames.
 6. Push to `main` to trigger the linked Vercel project. The existing project is named `laiyokeyau`.
 
@@ -45,3 +45,9 @@ The original SQLite workspace is preserved separately in `../freelance-portal` o
 `backend/server.py` retains the original SQLite server for reference. To develop the cloud version, install `requirements.txt`, set the environment variables and run `flask --app app run --port 4322` with `APP_ORIGIN=http://127.0.0.1:4322`.
 
 Private records, environment files and credentials must never be committed. This repository contains application code and already-public portfolio assets only.
+
+## Validation
+
+`python tools/test_cloud.py` checks HTTP access, owner identity, CSRF, rate limits, draft privacy and bookkeeping behavior using isolated fixtures. `tools/test_postgres.py` is an opt-in check for this installation using ignored local credentials: it verifies real Supabase Auth, PostgreSQL integer totals, CSV, audit and JSON backup. Its financial fixtures run inside a transaction that is always rolled back.
+
+`tools/provision_cloud.py` is the one-time setup helper for the named deployment. It uses authenticated Supabase/Vercel CLIs and keeps generated credentials in ignored local files. It does not reset an existing owner account. `supabase/config.toml` declares only the intended Auth settings; other remote settings are preserved.

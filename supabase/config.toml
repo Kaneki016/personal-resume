@@ -1,0 +1,6 @@
+project_id = "laiyokeyau-portfolio"
+
+[auth]
+site_url = "https://laiyokeyau.vercel.app"
+enable_signup = false
+minimum_password_length = 12
