@@ -5,6 +5,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
@@ -102,6 +103,100 @@ class CloudTests(unittest.TestCase):
         self.assertNotIn('sessions',backup.json['tables'])
         self.assertNotIn('settings',backup.json['tables'])
         self.assertIn(b'750.00',self.get('/api/export?type=payments&year=2026').data)
+    def invoice_setup(self, csrf):
+        data={**cloud.local.billing.DEFAULTS,'bank':'Example Bank','account':'TEST-ACCOUNT-ONLY','holder':'Example Owner'}
+        self.assertEqual(self.post('/api/invoice-settings',data,csrf,method='PUT').status_code,200)
+        return data
+    def invoice_payload(self, key='request-test-00000001'):
+        return {'request_key':key,'client':'Client <script>alert(1)</script>', 'project':'Website',
+                'amount':'1500.25','description':'50% deposit\nDevelopment & setup',
+                'issue_date':'2026-09-28','due_date':'2026-10-12'}
+    def test_invoice_generator_numbering_retries_and_payments(self):
+        csrf=self.login();self.invoice_setup(csrf)
+        payload=self.invoice_payload()
+        first=self.post('/api/invoices/generate',payload,csrf)
+        self.assertEqual(first.status_code,200,first.json)
+        self.assertEqual(first.json['number'],'INV-000001')
+        self.assertEqual(self.post('/api/invoices/generate',payload,csrf).json,first.json)
+        self.assertEqual(self.post('/api/invoices/generate',{**payload,'amount':'200'},csrf).status_code,400)
+        second=self.post('/api/invoices/generate',self.invoice_payload('request-test-00000002'),csrf)
+        self.assertEqual(second.json['number'],'INV-000002')
+        records=self.get('/api/records?year=2026').json
+        self.assertEqual(len(records['jobs']),1)
+        self.assertEqual(records['jobs'][0]['fee_known'],0)
+        self.assertEqual(records['summary']['received'],0)
+        ident=first.json['id']
+        self.assertEqual(self.post('/api/payments',{'invoice_id':ident,'date':'2026-09-28','amount':'500','method':'Transfer'},csrf).status_code,200)
+        html=self.get(f'/api/invoices/{ident}/print')
+        self.assertIn(b'RM 1,000.25',html.data)
+        self.assertIn(b'RM 500.00',html.data)
+        self.assertIn(b'Client &lt;script&gt;',html.data)
+        self.assertNotIn(b'<script>alert(1)</script>',html.data)
+        self.assertEqual(html.headers['X-Robots-Tag'],'noindex, nofollow')
+        self.assertEqual(html.headers['Cache-Control'],'no-store')
+        backup=self.get('/api/backup').json['tables']
+        self.assertEqual(len(backup['invoice_documents']),2)
+        self.assertEqual(backup['invoice_counter'][0]['value'],2)
+        self.assertEqual(backup['invoice_settings'][0]['id'],'issuer')
+    def test_invoice_snapshot_void_and_collision(self):
+        csrf=self.login();settings=self.invoice_setup(csrf)
+        job=self.post('/api/jobs',{'name':'Website','client':'Existing','fee':'3000'},csrf).json['id']
+        legacy=self.post('/api/invoices',{'job_id':job,'number':'INV-000042','issue_date':'2026-09-28','due_date':'2026-10-12','amount':'50'},csrf)
+        self.assertEqual(legacy.status_code,200)
+        self.assertEqual(self.get(f"/api/invoices/{legacy.json['id']}/print").status_code,200)
+        payload={**self.invoice_payload(),'client':'Existing'}
+        generated=self.post('/api/invoices/generate',payload,csrf).json
+        self.assertEqual(generated['number'],'INV-000043')
+        record=next(i for i in self.get('/api/records').json['invoices'] if i['id']==generated['id'])
+        update={k:record[k] for k in ('job_id','number','issue_date','due_date','description')}
+        update.update(amount='1500.25',void=0)
+        self.assertEqual(self.post('/api/invoices/'+str(record['id']),{**update,'amount':'1'},csrf,method='PUT').status_code,400)
+        self.assertEqual(self.post('/api/invoices/'+str(record['id']),{**update,'void':1},csrf,method='PUT').status_code,200)
+        self.post('/api/jobs/'+str(job),{'name':'Renamed','client':'New client','fee':'3000'},csrf,method='PUT')
+        self.post('/api/invoice-settings',{**settings,'account':'CHANGED-ACCOUNT'},csrf,method='PUT')
+        html=self.get(f"/api/invoices/{record['id']}/print").data
+        for expected in (b'TEST-ACCOUNT-ONLY',b'Existing',b'Website',b'VOID'):
+            self.assertIn(expected,html)
+        self.assertNotIn(b'CHANGED-ACCOUNT',html)
+        self.assertEqual(self.post('/api/invoices/generate',self.invoice_payload('request-test-00000003'),csrf).json['number'],'INV-000044')
+    def test_invoice_auth_validation_and_atomic_rollback(self):
+        payload=self.invoice_payload()
+        self.assertEqual(self.post('/api/invoices/generate',payload).status_code,401)
+        self.assertEqual(self.get('/api/invoice-settings').status_code,401)
+        self.assertEqual(self.get('/api/invoices/1/print').status_code,401)
+        csrf=self.login()
+        self.assertEqual(self.post('/api/invoices/generate',payload,csrf).status_code,400)
+        self.invoice_setup(csrf)
+        self.assertEqual(self.post('/api/invoices/generate',payload).status_code,403)
+        for changes in [{'amount':'0'},{'amount':'1.001'},{'amount':'NaN'},{'client':''},{'description':''},{'due_date':'2026-01-01'}]:
+            self.assertEqual(self.post('/api/invoices/generate',{**payload,**changes},csrf).status_code,400)
+        actual_audit=cloud.local.audit
+        def fail_invoice(*args):
+            if args[2]=='invoices':raise RuntimeError('Simulated failure after inserts')
+            return actual_audit(*args)
+        with patch.object(cloud.local,'audit',side_effect=fail_invoice):
+            self.assertEqual(self.post('/api/invoices/generate',payload,csrf).status_code,500)
+        records=self.get('/api/records').json
+        self.assertEqual(records['jobs'],[])
+        self.assertEqual(records['invoices'],[])
+        self.assertEqual(self.post('/api/invoices/generate',payload,csrf).json['number'],'INV-000001')
+        self.assertNotIn(b'TEST-ACCOUNT-ONLY',self.get('/').data)
+    def test_concurrent_invoice_requests(self):
+        csrf=self.login();self.invoice_setup(csrf)
+        token=self.client.get_cookie('portfolio_session',domain='portfolio.example').value
+        def generate(index):
+            client=cloud.app.test_client()
+            client.set_cookie('portfolio_session',token,domain='portfolio.example')
+            response=client.post('/api/invoices/generate',base_url=self.origin,
+                headers={'Origin':self.origin,'X-CSRF-Token':csrf},
+                json=self.invoice_payload(f'parallel-request-{index:08d}'))
+            self.assertEqual(response.status_code,200,response.json)
+            return response.json['number']
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            numbers=list(executor.map(generate,[0,0,0,0,1,2,3,4]))
+        self.assertEqual(len(set(numbers)),5)
+        self.assertEqual(len(set(numbers[:4])),1)
+        self.assertEqual(set(numbers),{f'INV-{n:06d}' for n in range(1,6)})
     def test_draft_and_image_privacy(self):
         csrf=self.login()
         name='a'*32+'.png'

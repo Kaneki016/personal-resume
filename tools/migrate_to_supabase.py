@@ -8,7 +8,7 @@ from pathlib import Path
 import psycopg
 from psycopg import sql
 
-TABLES = ('projects', 'jobs', 'invoices', 'payments', 'expenses', 'audit', 'site_content')
+TABLES = ('projects', 'jobs', 'invoices', 'payments', 'expenses', 'audit', 'site_content', 'invoice_settings', 'invoice_counter', 'invoice_documents')
 
 def main():
     parser = argparse.ArgumentParser()
@@ -32,7 +32,7 @@ def main():
                     sql.Identifier(table), sql.SQL(',').join(map(sql.Identifier,row)),
                     sql.SQL(',').join(sql.Placeholder() for _ in row))
                 db.execute(statement, list(row.values()))
-            if table!='site_content':
+            if table not in ('site_content','invoice_settings','invoice_counter','invoice_documents'):
                 db.execute("SELECT setval(pg_get_serial_sequence(%s,'id'),COALESCE((SELECT MAX(id) FROM "+table+"),1),EXISTS(SELECT 1 FROM "+table+"))", ('portfolio.'+table,))
     print('Imported records:', json.dumps({table: len(rows) for table,rows in records.items()}))
     print('Account passwords and sessions were not copied. Upload data/uploads to the private portfolio-images bucket separately, keeping filenames.')

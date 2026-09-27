@@ -55,3 +55,14 @@ Private records, environment files and credentials must never be committed. This
 `python tools/test_cloud.py` checks HTTP access, owner identity, CSRF, rate limits, draft privacy and bookkeeping behavior using isolated fixtures. `tools/test_postgres.py` is an opt-in check for this installation using ignored local credentials: it verifies real Supabase Auth, PostgreSQL integer totals, CSV, audit and JSON backup. Its financial fixtures run inside a transaction that is always rolled back.
 
 `tools/provision_cloud.py` is the one-time setup helper for the named deployment. It uses authenticated Supabase/Vercel CLIs and keeps generated credentials in ignored local files. It does not reset an existing owner account. `supabase/config.toml` declares only the intended Auth settings; other remote settings are preserved.
+
+
+### Invoice generator
+
+Open **Invoices → Generate invoice**. Enter client, project, amount billed and description. Dates default to today in Malaysia and 14 days later. The server assigns `INV-000001` onward across years, skips existing numbers and retains voided numbers. Retrying the same submission returns the existing invoice. Generate only the amount being billed (for example, the deposit), then record actual receipts under Payments received.
+
+**View / Print** opens an owner-only A4 invoice; use the browser's Save as PDF option. Issuer and bank details are private, editable under **Invoice settings**, and snapshotted on each new invoice. They must not be committed to this repository. Generated invoices keep their issued details; void and replace for corrections. Old manually recorded invoices remain printable using current details. No tax is added. This produces an ordinary invoice document, not a submission to MyInvois.
+
+Client/project pairs reuse an existing client project; new pairs create one with an unset agreed fee. An invoice amount never silently becomes the agreed total project fee. Update that fee separately when known.
+
+For an existing cloud installation, apply `supabase/migrations/202609280003_invoice_generator.sql` before deploying this code. It adds private invoice settings, a transactional number counter, document snapshots, and an agreed-fee flag without changing existing records. All three new tables are included in the private JSON backup. The local SQLite server upgrades itself on startup. PostgreSQL owner writes use a transaction advisory lock; SQLite owner writes use the server lock. Number allocation, project creation, invoice and audit entries commit together.

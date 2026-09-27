@@ -7,9 +7,9 @@ from decimal import Decimal, InvalidOperation
 from datetime import date
 import argparse, base64, csv, hashlib, hmac, io, json, mimetypes, os, re, secrets, sqlite3, time, threading, zipfile
 if __package__:
-    from . import content
+    from . import content, billing
 else:
-    import content
+    import content, billing
 
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / 'dist'
@@ -29,9 +29,11 @@ def init():
     DATA.mkdir(parents=True, exist_ok=True)
     (DATA / 'uploads').mkdir(exist_ok=True)
     with db() as c:
-        c.executescript((ROOT/'backend/schema.sql').read_text())
+        c.executescript((ROOT/'backend/schema.sql').read_text(encoding='utf-8'))
         if 'screenshots' not in [r['name'] for r in c.execute('PRAGMA table_info(projects)')]:
             c.execute("ALTER TABLE projects ADD COLUMN screenshots TEXT NOT NULL DEFAULT '[]'")
+        if 'fee_known' not in [r['name'] for r in c.execute('PRAGMA table_info(jobs)')]:
+            c.execute('ALTER TABLE jobs ADD COLUMN fee_known INTEGER NOT NULL DEFAULT 1 CHECK(fee_known IN (0,1))')
         for key,value in content.DEFAULTS.items():
             c.execute('INSERT INTO site_content(id,body,revision) VALUES(?,?,1) ON CONFLICT(id) DO NOTHING',(key,json.dumps(value,ensure_ascii=False)))
         if not c.execute("SELECT 1 FROM settings WHERE key='seeded'").fetchone():
@@ -142,6 +144,11 @@ class Handler(BaseHTTPRequestHandler):
                 if route.startswith('/api/'):
                     if not self.session(c):return self.fail(401,'Sign in to continue.')
                     if route=='/api/projects':return self.send(200,project_rows(c))
+                    if route=='/api/invoice-settings':return self.send(200,billing.settings(c))
+                    invoice_print=re.fullmatch(r'/api/invoices/(\d+)/print',route)
+                    if invoice_print:
+                        html=billing.render(c,int(invoice_print[1]),content.TEMPLATES)
+                        return self.send(200,html.encode('utf-8'),'text/html; charset=utf-8') if html else self.fail(404,'Invoice not found.')
                     if route=='/api/site-content':return self.send(200,content.read(c))
                     if route=='/api/records':return self.send(200,self.records(c))
                     if route=='/api/audit':return self.send(200,rows(c,'SELECT id,recorded_at,action,entity,entity_id FROM audit ORDER BY id DESC LIMIT 100'))
@@ -156,7 +163,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self.file(DATA/'uploads'/name)
                 if route in ('/admin','/admin/'):
                     return self.file(PRIVATE/'admin.html')
-                if route in ('/admin.js','/admin.css','/site-editor.js'):return self.file(PRIVATE/route[1:])
+                if route in ('/admin.js','/admin.css','/site-editor.js','/invoice-editor.js','/invoice.css','/invoice-print.js'):return self.file(PRIVATE/route[1:])
                 route='/index.html' if route=='/' else unquote(route)
                 path=(PUBLIC/route.lstrip('/')).resolve()
                 if not path.is_relative_to(PUBLIC.resolve()) or any(part.startswith('.') for part in path.relative_to(PUBLIC.resolve()).parts):return self.fail(404,'Not found.')
@@ -170,7 +177,11 @@ class Handler(BaseHTTPRequestHandler):
     def records(self,c):
         year=integer(parse_qs(urlsplit(self.path).query).get('year',[str(date.today().year)])[0],2000,2100)
         start,end=f'{year}-01-01',f'{year+1}-01-01'
-        invoices=rows(c,'''SELECT i.*,j.name AS job_name,j.client,COALESCE((SELECT SUM(p.amount_cents) FROM payments p WHERE p.invoice_id=i.id AND p.void=0),0) AS paid_cents FROM invoices i JOIN jobs j ON j.id=i.job_id ORDER BY i.issue_date DESC,i.id DESC''')
+        invoices=rows(c,'''SELECT i.*,d.body AS document_body,j.name AS job_name,j.client,COALESCE((SELECT SUM(p.amount_cents) FROM payments p WHERE p.invoice_id=i.id AND p.void=0),0) AS paid_cents FROM invoices i JOIN jobs j ON j.id=i.job_id LEFT JOIN invoice_documents d ON d.id=i.id ORDER BY i.issue_date DESC,i.id DESC''')
+        for invoice in invoices:
+            saved=invoice.pop('document_body');invoice['generated']=int(bool(saved))
+            if saved:
+                snapshot=json.loads(saved);invoice['client']=snapshot['client'];invoice['job_name']=snapshot['project']
         payments=rows(c,'''SELECT p.*,i.number,j.name AS job_name,j.client FROM payments p JOIN invoices i ON i.id=p.invoice_id JOIN jobs j ON j.id=i.job_id ORDER BY p.date DESC,p.id DESC''')
         expenses=rows(c,'SELECT * FROM expenses ORDER BY date DESC,id DESC')
         received=sum(p['amount_cents'] for p in payments if not p['void'] and start<=p['date']<end)
@@ -190,7 +201,7 @@ class Handler(BaseHTTPRequestHandler):
             if kind!='jobs':
                 datekey='issue_date' if kind=='invoices' else 'date'
                 data=[r for r in data if r[datekey].startswith(str(year)+'-')]
-            fields={'jobs':['id','name','client','fee_cents','status','notes','created_at'],
+            fields={'jobs':['id','name','client','fee_cents','fee_known','status','notes','created_at'],
                 'invoices':['id','job_id','number','client','job_name','issue_date','due_date','amount_cents','paid_cents','description','void'],
                 'payments':['id','invoice_id','number','client','job_name','date','amount_cents','method','reference','notes','void'],
                 'expenses':['id','date','payee','category','amount_cents','business_percent','reference','notes','void']}[kind]
@@ -200,7 +211,7 @@ class Handler(BaseHTTPRequestHandler):
         buf=io.StringIO(newline='');writer=csv.writer(buf)
         writer.writerow([f.replace('_cents','_MYR') for f in fields]+(['currency'] if kind!='audit' else []))
         for row in data:
-            vals=[f'{row.get(f,0)/100:.2f}' if f.endswith('_cents') else safe(row.get(f)) for f in fields]
+            vals=[('' if f=='fee_cents' and row.get('fee_known')==0 else f'{row.get(f,0)/100:.2f}') if f.endswith('_cents') else safe(row.get(f)) for f in fields]
             writer.writerow(vals+(['MYR'] if kind!='audit' else []))
         self.send(200,b'\xef\xbb\xbf'+buf.getvalue().encode('utf-8'),'text/csv; charset=utf-8',{'Content-Disposition':f'attachment; filename="{kind}-{year}.csv"'})
     def backup(self,c):
@@ -231,6 +242,14 @@ class Handler(BaseHTTPRequestHandler):
                     if not self.password_matches(c,data.get('current','')):return self.fail(400,'Current password is incorrect.')
                     self.set_password(c,data.get('password'));c.execute('DELETE FROM sessions');c.commit();return self.send(200,{'ok':True})
                 if route=='/api/upload':return self.upload(data)
+                if route=='/api/invoice-settings':
+                    if self.command!='PUT':return self.fail(405,'Use PUT to save invoice settings.')
+                    result=billing.save_settings(c,data,text,audit);c.commit()
+                    return self.send(200,result)
+                if route=='/api/invoices/generate':
+                    if self.command!='POST':return self.fail(405,'Use POST to generate an invoice.')
+                    result=billing.generate(c,data,text,cents,day,audit);c.commit()
+                    return self.send(200,result)
                 if route.startswith('/api/site-content/'):
                     if self.command!='PUT':return self.fail(405,'Use PUT to update website content.')
                     key=route.removeprefix('/api/site-content/')
@@ -256,9 +275,12 @@ class Handler(BaseHTTPRequestHandler):
                 elif entity=='jobs':
                     status=data.get('status','active')
                     if status not in ('active','complete','cancelled'):raise ValueError('Invalid project status.')
-                    record={'name':text(data.get('name'),'project name',160),'client':text(data.get('client'),'client',160),'fee_cents':cents(data.get('fee')),'status':status,'notes':text(data.get('notes',''),'notes',3000,False)}
+                    record={'name':text(data.get('name'),'project name',160),'client':text(data.get('client'),'client',160),'fee_cents':cents(data.get('fee') or 0),'fee_known':int(data.get('fee') not in (None,'')),'status':status,'notes':text(data.get('notes',''),'notes',3000,False)}
                 elif entity=='invoices':
                     record={'job_id':integer(data.get('job_id'),1),'number':text(data.get('number'),'invoice number',80),'issue_date':day(data.get('issue_date')),'due_date':day(data.get('due_date')),'amount_cents':cents(data.get('amount')),'description':text(data.get('description',''),'description',2000,False),'void':integer(data.get('void',0),0,1)}
+                    if before and c.execute('SELECT id FROM invoice_documents WHERE id=?',(id_,)).fetchone():
+                        if any(record[k]!=before[k] for k in record if k!='void'):
+                            raise ValueError('Generated invoices keep their issued details. Void this invoice and generate a replacement to correct it.')
                     if record['due_date']<record['issue_date']:raise ValueError('Due date cannot precede issue date.')
                     paid=c.execute('SELECT COUNT(*) FROM payments WHERE invoice_id=? AND void=0',(id_,)).fetchone()[0] if id_ else 0
                     if paid and (record['void'] or record['job_id']!=before['job_id']):raise ValueError('Void or reassign its payments before voiding or reassigning this invoice.')

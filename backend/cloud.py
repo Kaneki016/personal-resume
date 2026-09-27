@@ -21,7 +21,7 @@ from flask import Flask, Response, redirect, request, send_file
 from werkzeug.exceptions import RequestEntityTooLarge
 from backend import server as local
 
-TABLES = ('projects', 'jobs', 'invoices', 'payments', 'expenses', 'audit', 'site_content')
+TABLES = ('projects', 'jobs', 'invoices', 'payments', 'expenses', 'audit', 'site_content', 'invoice_settings', 'invoice_counter', 'invoice_documents')
 
 def required(name):
     value = os.environ.get(name, '').strip()
@@ -55,7 +55,7 @@ class Database:
             self.connection.execute('SET LOCAL search_path TO portfolio')
             self.started = True
         sql = sql.replace('?', '%s')
-        returning = re.match(r'INSERT INTO (projects|jobs|invoices|payments|expenses)\s', sql, re.I)
+        returning = re.match(r'INSERT INTO (projects|jobs|invoices|payments|expenses)(?:\s|\()', sql, re.I)
         if returning:
             sql += ' RETURNING id'
         try:
@@ -256,7 +256,7 @@ def dispatch(path):
                     return Response(local.content.render(c),content_type='text/html; charset=utf-8')
             if path in ('admin', 'admin/'):
                 return send_file(local.PRIVATE / 'admin.html')
-            if path in ('admin.js', 'admin.css', 'site-editor.js'):
+            if path in ('admin.js', 'admin.css', 'site-editor.js', 'invoice-editor.js', 'invoice.css', 'invoice-print.js'):
                 return send_file(local.PRIVATE / path)
             target = (local.PUBLIC / (path or 'index.html')).resolve()
             if not target.is_relative_to(local.PUBLIC.resolve()) or any(part.startswith('.') for part in target.relative_to(local.PUBLIC.resolve()).parts) or not target.is_file():
